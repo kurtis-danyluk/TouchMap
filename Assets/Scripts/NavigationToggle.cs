@@ -9,6 +9,7 @@ public class NavigationToggle : MonoBehaviour {
 
     public TouchController tcon;
     public TouchCamera tcam;
+    public SnapBackCam snapCam;
 
 	// Use this for initialization
 	void Start () {
@@ -27,11 +28,19 @@ public class NavigationToggle : MonoBehaviour {
         {
             tcon.enabled = true;
             tcam.enabled = false;
+            snapCam.enabled = false;
         }
         if(change.value == 1)
         {
             tcam.enabled = true;
             tcon.enabled = false;
+            snapCam.enabled = false;
+        }
+        if(change.value == 2)
+        {
+            tcam.enabled = false;
+            tcon.enabled = false;
+            snapCam.enabled = true;
         }
 
     }

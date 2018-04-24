@@ -4,20 +4,28 @@ using UnityEngine;
 
 public class ResetCam : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
-    public void resetCam()
+
+    public static void resetCam()
     {
         Camera.main.transform.position = new Vector3(526, 1000, 526);
         Camera.main.transform.eulerAngles = new Vector3(90, 0, 0);
+    }
+
+    public static void resetCam(Camera cam)
+    {
+        cam.transform.position = new Vector3(526, 1000, 526);
+        cam.transform.eulerAngles = new Vector3(90, 0, 0);
+    }
+
+    public void ResetCamWrapper()
+    {
+        resetCam();
+    }
+
+    public void ResetCamWrapper(Camera cam)
+    {
+        resetCam(cam);
     }
 
 }
