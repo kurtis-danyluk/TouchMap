@@ -17,7 +17,6 @@ public class mapTile : MonoBehaviour {
     /// </summary>
     Terrain Terr;
     
-
     /// <summary>
     /// The X coordinate of the top left tile section in mercantor coordinates
     /// </summary>
@@ -36,6 +35,12 @@ public class mapTile : MonoBehaviour {
     /// Must be positive
     /// </summary>
     public int detail;
+
+    /// <summary>
+    /// Determines whether arial images or road images are drawn as tiles
+    /// 'a' draws arial, 'r' draws road maps
+    /// </summary>
+    public char tileType;
 
     /// <summary>
     /// The relative scale of the map compared to its pieces
@@ -68,7 +73,7 @@ public class mapTile : MonoBehaviour {
     /// <param name="mercY"></param>
     /// <param name="zoom"></param>
     /// <param name="Terr"></param>
-    public void SetupMapTile(int detail, Terrain Terr, int mercX = 1, int mercY = 1, int zoom = 1)
+    public void SetupMapTile(int detail, Terrain Terr, int mercX = 1, int mercY = 1, int zoom = 1, char tileType = 'a')
     {
         this.detail = detail;
         this.mercX = mercX;
@@ -81,7 +86,7 @@ public class mapTile : MonoBehaviour {
         this.Terr = Terr;
         this.name = "monoTile";
 
-        
+        this.tileType = tileType;
 
         pieces = (int)detail * (int)detail;
         heights = new List<Texture2D>(pieces);
@@ -183,7 +188,7 @@ public class mapTile : MonoBehaviour {
             int merc_lat = mercY + (i % detail);
             int tZoom = zoom;// + (int)Mathf.Log((float)pieces, 4f);
             //Debug.Log("Grabbing tile " + merc_lon + " " + merc_lat + " " + tZoom);
-            collect_tiles.dlImgFile(merc_lon, merc_lat, tZoom, texNames[i], 'a');
+            collect_tiles.dlImgFile(merc_lon, merc_lat, tZoom, texNames[i], tileType);
             Texture2D tex = new Texture2D(256, 256);
             tex.LoadImage(File.ReadAllBytes(texNames[i]));
             nSplats[i] = Terr.terrainData.splatPrototypes[i];

@@ -47,6 +47,9 @@ public class Generate_Terrain : MonoBehaviour {
     /// </summary>
     public char map_style = 'r';
 
+    public int mercX = 367;
+    public int mercY = 683;
+    public int zoom  = 11;
 
     // Use this for initialization
     void Start () {
@@ -61,7 +64,7 @@ public class Generate_Terrain : MonoBehaviour {
         mapTerr.baseMapResolution = 1024;
         mainMap = Terrain.CreateTerrainGameObject(mapTerr);
         mainMap.AddComponent<mapTile>();
-        mainMap.GetComponent<mapTile>().SetupMapTile(4, mainMap.GetComponent<Terrain>(), 367, 683, 11);
+        mainMap.GetComponent<mapTile>().SetupMapTile(4, mainMap.GetComponent<Terrain>(), mercX, mercY, zoom, map_style);
         
         
 

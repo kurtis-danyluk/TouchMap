@@ -7,12 +7,14 @@ public class NavigationToggle : MonoBehaviour {
 
     Dropdown m_Drowdown;
 
-    public TouchController tcon;
-    public TouchCamera tcam;
-    public SnapBackCam snapCam;
+    public TouchController lookFromAt; //0
+    public LookFromAt lookAtFrom; //1
+    public SnapBackCam snapCam; //2
+    public ReverseSnapCam revSnapCam; //3
+    public TouchCamera dragZoom; //4
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         m_Drowdown = GetComponent<Dropdown>();
         m_Drowdown.onValueChanged.AddListener(delegate { ChangeNavigationTool(m_Drowdown);});
 
@@ -23,25 +25,46 @@ public class NavigationToggle : MonoBehaviour {
 
     public void ChangeNavigationTool(Dropdown change)
     {
-        //change.value;
-        if(change.value == 0)
-        {
-            tcon.enabled = true;
-            tcam.enabled = false;
-            snapCam.enabled = false;
+
+        switch (change.value){
+            case 0:
+                lookFromAt.enabled = true;
+                lookAtFrom.enabled = false;
+                snapCam.enabled = false;
+                dragZoom.enabled = false;
+                revSnapCam.enabled = false;
+                break;
+            case 1:
+                lookFromAt.enabled = false;
+                lookAtFrom.enabled = true;
+                snapCam.enabled = false;
+                dragZoom.enabled = false;
+                revSnapCam.enabled = false;
+                break;
+            case 2:
+                lookFromAt.enabled = false;
+                lookAtFrom.enabled = false;
+                snapCam.enabled = true;
+                dragZoom.enabled = false;
+                revSnapCam.enabled = false;
+                break;
+            case 3:
+                lookFromAt.enabled = false;
+                lookAtFrom.enabled = false;
+                snapCam.enabled = false;
+                dragZoom.enabled = false;
+                revSnapCam.enabled = true;
+                break;
+            case 4:
+                lookFromAt.enabled = false;
+                lookAtFrom.enabled = false;
+                snapCam.enabled = false;
+                dragZoom.enabled = true;
+                revSnapCam.enabled = false;
+                break;
         }
-        if(change.value == 1)
-        {
-            tcam.enabled = true;
-            tcon.enabled = false;
-            snapCam.enabled = false;
-        }
-        if(change.value == 2)
-        {
-            tcam.enabled = false;
-            tcon.enabled = false;
-            snapCam.enabled = true;
-        }
+
+       
 
     }
 

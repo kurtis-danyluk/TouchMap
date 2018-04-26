@@ -16,7 +16,7 @@ public class TouchController : MonoBehaviour {
     Vector2 endScreenTouch;
 
     private bool animateCam = false;
-    
+    private IEnumerator coroutine;
 
     // Use this for initialization
     void Start () {
@@ -31,11 +31,18 @@ public class TouchController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if(! EventSystem.current.IsPointerOverGameObject())
-            if(Input.touchCount == 1)
-                foreach(Touch t in Input.touches)
+
+        LookAtFrom();
+            
+    }
+
+    public void LookAtFrom()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+            if (Input.touchCount == 1)
+                foreach (Touch t in Input.touches)
                 {
-                    Vector3 worldP = Camera.main.ScreenToWorldPoint(new Vector3 (t.position.x, t.position.y, 1200));
+                    Vector3 worldP = Camera.main.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 1200));
                     Vector3 dir = (worldP - Camera.main.transform.position).normalized;
                     RaycastHit hit;
                     Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane);
@@ -43,62 +50,54 @@ public class TouchController : MonoBehaviour {
                     if (t.phase == TouchPhase.Began)
                     {
                         startScreenTouch = t.position;
-                        startTouch = hit.point + new Vector3(0,2,0);
+                        startTouch = hit.point + new Vector3(0, 2, 0);
                         startSphere.transform.position = hit.point;
                         startSphere.SetActive(true);
-                        animateCam = false;
-                
-                    }            
+                        if (coroutine != null)
+                            StopCoroutine(coroutine);
+                       
+
+                    }
                     else if (t.phase == TouchPhase.Ended)
                     {
                         endScreenTouch = t.position;
                         endTouch = hit.point;
+                        startSphere.SetActive(false);
                         if (Vector2.Distance(startScreenTouch, endScreenTouch) > 10)
-                        {    
-                            animateCam = true;
+                        {
+                            while (Physics.Linecast(startTouch, endTouch))
+                            {
+                                startTouch += new Vector3(0, 0.1f, 0);
+                                endTouch += new Vector3(0, 0.01f, 0);
+                            }
+                            coroutine = OrientCamera(Camera.main, startTouch, endTouch, Rate);
+                            StartCoroutine(coroutine);
+                           
                         }
                         endSphere.transform.position = hit.point;
-                        startSphere.SetActive(false);
                         StartCoroutine(ShowAndHide(endSphere, 60 * Rate));
                     }
-                
+
                 }
-	
-            
-    }
-
-    private void FixedUpdate()
-    {
-
-        if (animateCam)
-        {
-            StartCoroutine(OrientCamera(Camera.main, startTouch, endTouch, Rate));
-            animateCam = false;
-        }
-        else
-            StopCoroutine("OrientCamera");
     }
 
     public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
-        //Quaternion endRot = Quaternion.LookRotation(lookTo);
 
         temp.transform.position = location;
         temp.transform.LookAt(lookTo);
-
-        
+        Quaternion endA = temp.transform.rotation;
 
         for(float i = 0; i <= 1; i += rate)
         {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
-            cam.transform.rotation = Quaternion.Lerp(startA,temp.transform.rotation , j);
+            cam.transform.rotation = Quaternion.Lerp(startA, endA, j);
+
             yield return null;
         }
-
-        //animateCam = false;
     }
 
     public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate)
@@ -111,10 +110,10 @@ public class TouchController : MonoBehaviour {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
             cam.transform.rotation = Quaternion.Lerp(startA, lookTo, j);
+
             yield return null;
         }
-
-        //animateCam = false;
+        
     }
 
 

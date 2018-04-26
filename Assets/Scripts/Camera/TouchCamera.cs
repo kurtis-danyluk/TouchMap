@@ -1,18 +1,37 @@
 ﻿// Just add this script to your camera. It doesn't need any configuration.
 
+using System.Collections;
 using UnityEngine;
 
 public class TouchCamera : MonoBehaviour {
     public Camera m_OrthographicCamera;
 
-	Vector2?[] oldTouchPositions = {
+    private const float dragSpeed = 14;
+    private const float zoomSpeed = 0.01f;
+
+    public GameObject pitchButton;
+
+    private bool isPitched = false;
+    private const float Rate = 1f / 60f;
+
+    Vector2?[] oldTouchPositions = {
 		null,
 		null
 	};
 	Vector2 oldTouchVector;
 	float oldTouchDistance;
 
-	void Update() {
+    private void OnEnable()
+    {
+        pitchButton.SetActive(true);
+        ResetCam.resetCam();
+    }
+    private void OnDisable()
+    {
+        pitchButton.SetActive(false);
+    }
+
+    void Update() {
 		if (Input.touchCount == 0) {
 			oldTouchPositions[0] = null;
 			oldTouchPositions[1] = null;
@@ -25,7 +44,7 @@ public class TouchCamera : MonoBehaviour {
 			else {
 				Vector2 newTouchPosition = Input.GetTouch(0).position;
 				
-				transform.position += transform.TransformDirection(5* (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
+				transform.position += transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
 				
 				oldTouchPositions[0] = newTouchPosition;
 			}
@@ -48,21 +67,58 @@ public class TouchCamera : MonoBehaviour {
 
 				float newTouchDistance = newTouchVector.magnitude;
 
-                bool distGrown = (oldTouchDistance - newTouchDistance) > 0 ? true : false;
+                bool hasGrown = (oldTouchDistance - newTouchDistance) > 0 ? true : false;
                 float fingerRatio = (oldTouchDistance / newTouchDistance);
 
-                if(distGrown)
+                if(hasGrown)
                     fingerRatio = (-1) * (1.0f / fingerRatio);
 
-                if(Mathf.Abs(fingerRatio) > 0.1)
-                    transform.position += new Vector3(0,  transform.position.y * fingerRatio * 0.01f , 0);
-                
+                if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 5)
+                {
+                    if (Mathf.Abs(fingerRatio) > 0.1)
+                        transform.position += new Vector3(0, transform.position.y * fingerRatio * zoomSpeed, 0);
+                    oldTouchPositions[0] = newTouchPositions[0];
+                    oldTouchPositions[1] = newTouchPositions[1];
+                }
 
-				oldTouchPositions[0] = newTouchPositions[0];
-				oldTouchPositions[1] = newTouchPositions[1];
-				oldTouchVector = newTouchVector;
-				oldTouchDistance = newTouchDistance;
-			}
+                if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > 0.2)
+                {
+                    if (!isPitched)
+                        transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
+                    oldTouchVector = newTouchVector;
+                    oldTouchDistance = newTouchDistance;
+                }
+
+
+            }
 		}
 	}
+    private IEnumerator coroutine;
+    public void pitchCamera()
+    {
+        if (coroutine != null)
+            StopCoroutine(coroutine);
+        //if pitched, unpitch
+        if (isPitched)
+        {
+            coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f,0,0 ), Rate);            
+        }
+        else
+        {
+            coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(45f, transform.eulerAngles.y, transform.eulerAngles.z), Rate);           
+        }
+        StartCoroutine(coroutine);
+        isPitched = !isPitched;
+    }
+
+    public static IEnumerator pitchCam(Transform tran, Vector3 startA, Vector3 endA, float rate)
+    {
+        for (float i = 0; i <= 1; i += rate)
+        {
+            float j = TouchController.smoothstep(0, 1, i);
+            tran.eulerAngles = Vector3.Lerp(startA, endA, j);
+            yield return null;
+        }
+    }
+
 }

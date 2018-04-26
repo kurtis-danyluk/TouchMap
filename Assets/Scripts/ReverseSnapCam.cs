@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SnapBackCam : MonoBehaviour {
+public class ReverseSnapCam : MonoBehaviour {
 
     private const float Rate = (1f / 60f);
     public GameObject startSphere;
@@ -14,15 +14,15 @@ public class SnapBackCam : MonoBehaviour {
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
 
-    private IEnumerator coroutine;
-
     Vector3 startTouch;
     Vector3 endTouch;
 
+    private IEnumerator coroutine;
 
     // Use this for initialization
-    void Start () {
-        temp = new GameObject("setCamHolder");
+    void Start()
+    {
+        temp = new GameObject("revSetCamHolder");
         setCam = temp.AddComponent<Camera>();
         setCam.CopyFrom(Camera.main);
         setCam.targetDisplay = 1;
@@ -38,7 +38,8 @@ public class SnapBackCam : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (!EventSystem.current.IsPointerOverGameObject())
             if (Input.touchCount == 1)
                 foreach (Touch t in Input.touches)
@@ -51,7 +52,7 @@ public class SnapBackCam : MonoBehaviour {
                     if (t.phase == TouchPhase.Began)
                     {
 
-                        startTouch = hit.point + new Vector3(0, 2, 0);
+                        startTouch = hit.point ;
                         startSphere.transform.position = hit.point;
                         startSphere.SetActive(true);
                         viewPane.SetActive(true);
@@ -61,25 +62,26 @@ public class SnapBackCam : MonoBehaviour {
                     }
                     else if (t.phase == TouchPhase.Moved)
                     {
-                        endTouch = hit.point;
-                        endSphere.transform.position = hit.point;
+                        endTouch = hit.point + new Vector3(0, 2, 0);
+                        //endSphere.transform.position = hit.point;
                         startSphere.SetActive(false);
-                        endSphere.SetActive(true);
+                        //endSphere.SetActive(true);
                         viewPane.SetActive(true);
                         touchEndPosPanel.transform.position = t.position;
                         touchEndPosPanel.SetActive(true);
-                        if(coroutine != null)
+                        if (coroutine != null)
                             StopCoroutine(coroutine);
+
+
 
                         Vector3 startViewOffset = new Vector3();
                         Vector3 endViewOffset = new Vector3();
-
                         while (Physics.Linecast(startTouch + startViewOffset, endTouch + endViewOffset))
                         {
-                            startViewOffset += new Vector3(0, 0.1f, 0);
-                            endViewOffset += new Vector3(0, 0.01f, 0);
+                            startViewOffset += new Vector3(0, 0.01f, 0);
+                            endViewOffset += new Vector3(0, 0.1f, 0);
                         }
-                        coroutine = TouchController.OrientCamera(Camera.main, startTouch + startViewOffset, endTouch + endViewOffset, Rate);
+                        coroutine = TouchController.OrientCamera(Camera.main, endTouch + endViewOffset, startTouch + startViewOffset, Rate);
                         StartCoroutine(coroutine);
                     }
                     else if (t.phase == TouchPhase.Ended)
@@ -90,7 +92,7 @@ public class SnapBackCam : MonoBehaviour {
                         touchEndPosPanel.SetActive(false);
                         StartCoroutine(TouchController.OrientCamera(Camera.main, setCam.transform.position, setCam.transform.rotation, Rate * 0.2f));
                     }
-                    else if(t.phase == TouchPhase.Stationary)
+                    else if (t.phase == TouchPhase.Stationary)
                     {
                         TouchController.HideObject(viewPane, Rate);
                     }
