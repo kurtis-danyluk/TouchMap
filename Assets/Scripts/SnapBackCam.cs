@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class SnapBackCam : MonoBehaviour {
@@ -13,6 +14,10 @@ public class SnapBackCam : MonoBehaviour {
     public GameObject viewPane;
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
+
+
+    private float stationary_time;
+    private float move_time;
 
     private IEnumerator coroutine;
 
@@ -50,7 +55,7 @@ public class SnapBackCam : MonoBehaviour {
 
                     if (t.phase == TouchPhase.Began)
                     {
-
+                        
                         startTouch = hit.point + new Vector3(0, 2, 0);
                         startSphere.transform.position = hit.point;
                         startSphere.SetActive(true);
@@ -61,11 +66,16 @@ public class SnapBackCam : MonoBehaviour {
                     }
                     else if (t.phase == TouchPhase.Moved)
                     {
+                        if (move_time == 0)
+                            move_time = Time.time;
+                        stationary_time = 0;
                         endTouch = hit.point;
                         endSphere.transform.position = hit.point;
                         startSphere.SetActive(false);
                         endSphere.SetActive(true);
-                        viewPane.SetActive(true);
+                        if(Time.time - move_time >=0.2)
+                            viewPane.SetActive(true);
+
                         touchEndPosPanel.transform.position = t.position;
                         touchEndPosPanel.SetActive(true);
                         if(coroutine != null)
@@ -92,7 +102,11 @@ public class SnapBackCam : MonoBehaviour {
                     }
                     else if(t.phase == TouchPhase.Stationary)
                     {
-                        TouchController.HideObject(viewPane, Rate);
+                        move_time = 0;
+                        if (stationary_time == 0)
+                            stationary_time = Time.time;
+                        if(Time.time - stationary_time > 1)
+                            viewPane.SetActive(false);
                     }
 
                 }

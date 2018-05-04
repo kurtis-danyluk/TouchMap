@@ -11,7 +11,22 @@ public class TouchCamera : MonoBehaviour {
 
     public GameObject pitchButton;
 
-    private bool isPitched = false;
+    private bool i_isPitched = false;
+    public bool isPitched
+    {
+        get { return i_isPitched; }
+        set
+        {
+            if (i_isPitched == value) return;
+            i_isPitched = value;
+            if (OnVariableChange != null)
+                OnVariableChange(isPitched);
+        }
+
+    }
+    public delegate void OnVariableChangeDelegate(bool newVal);
+    public event OnVariableChangeDelegate OnVariableChange;
+
     private const float Rate = 1f / 60f;
 
     Vector2?[] oldTouchPositions = {
@@ -110,6 +125,20 @@ public class TouchCamera : MonoBehaviour {
         StartCoroutine(coroutine);
         isPitched = !isPitched;
     }
+
+    public void pitchCamera(float pitch)
+    {
+        if (pitch == transform.eulerAngles.x)
+            return;
+        if (coroutine != null)
+            StopCoroutine(coroutine);
+        
+         coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(pitch, transform.eulerAngles.y, transform.eulerAngles.z), Rate);
+        
+        StartCoroutine(coroutine);
+        isPitched = pitch != 90 ? true : false;       
+    }
+
 
     public static IEnumerator pitchCam(Transform tran, Vector3 startA, Vector3 endA, float rate)
     {
