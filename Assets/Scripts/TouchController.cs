@@ -42,6 +42,7 @@ public class TouchController : MonoBehaviour {
 
     public void LookAtFrom()
     {
+
         if (!EventSystem.current.IsPointerOverGameObject())
             if (Input.touchCount == 1)
                 foreach (Touch t in Input.touches)
@@ -50,7 +51,7 @@ public class TouchController : MonoBehaviour {
                     Vector3 dir = (worldP - Camera.main.transform.position).normalized;
                     RaycastHit hit;
                     Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane);
-
+                    
                     if (t.phase == TouchPhase.Began)
                     {
                         //Moved to long touchs

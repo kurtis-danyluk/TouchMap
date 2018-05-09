@@ -65,7 +65,7 @@ public class Generate_Terrain : MonoBehaviour {
         mainMap = Terrain.CreateTerrainGameObject(mapTerr);
         mainMap.AddComponent<mapTile>();
         mainMap.GetComponent<mapTile>().SetupMapTile(4, mainMap.GetComponent<Terrain>(), mercX, mercY, zoom, map_style);
-        
+
         
 
     }

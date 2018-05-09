@@ -76,6 +76,7 @@ public class mapTile : MonoBehaviour {
     public void SetupMapTile(int detail, Terrain Terr, int mercX = 1, int mercY = 1, int zoom = 1, char tileType = 'a')
     {
         this.detail = detail;
+        Terr.heightmapPixelError = 32;
         this.mercX = mercX;
         this.mercY = mercY;
         this.zoom = zoom;
@@ -244,6 +245,8 @@ public class mapTile : MonoBehaviour {
             heightArrays[i] = collect_tiles.flipMatrix(heightArrays[i], 256);
             heightArrays[i] = collect_tiles.flattenMatrixEdge(heightArrays[i], 256);
 
+            yield return null;
+
         }
 
 
@@ -251,11 +254,12 @@ public class mapTile : MonoBehaviour {
         float minHeight = float.MaxValue;
         float maxHeight = float.MinValue;
 
-        for (int i =0; i<heights.Count; i++)
-            for(int j = 0; j < heights[i].width; j++)
+        for (int i = 0; i < heights.Count; i++)
+        {
+            for (int j = 0; j < heights[i].width; j++)
                 for (int k = 0; k < heights[i].height; k++)
                 {
-                    float heightID = (1 - heightArrays[i][j,k]) * 255;
+                    float heightID = (1 - heightArrays[i][j, k]) * 255;
                     float qHeight = collect_tiles.quantized_height((int)heightID);
 
                     if (qHeight > maxHeight)
@@ -263,8 +267,10 @@ public class mapTile : MonoBehaviour {
                     if (qHeight < minHeight)
                         minHeight = qHeight;
 
-                    heightM[j + ((i%detail)*256), k + ((i / detail) * 256)] = qHeight;
+                    heightM[j + ((i % detail) * 256), k + ((i / detail) * 256)] = qHeight;
                 }
+            yield return null;
+        }
 
         for (int i = 0; i < 256*detail; i++)
             for (int j = 0; j < 256*detail; j++)
@@ -280,7 +286,9 @@ public class mapTile : MonoBehaviour {
 
 
         Terr.terrainData.SetHeights(0, 0, heightM);
-        Terr.heightmapPixelError = zoom;
+        Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (zoom - 8f)));
+        Terr.heightmapMaximumLOD = (int)(Mathf.Max(0f, (zoom - 11f)));
+        //Terr.heightmapPixelError = 64;
 
         float latitude;
         float longitude;
@@ -320,4 +328,13 @@ public class mapTile : MonoBehaviour {
 
         hasChanged = true;
     }
+
+    public void ChangeTile(float lat, float lon, int zoom)
+    {
+        this.zoom = zoom;
+        collect_tiles.mercator(lat, lon, zoom, out mercX, out mercY);
+        
+        StartCoroutine(loadTile());
+    }
+
 }

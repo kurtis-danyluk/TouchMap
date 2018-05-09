@@ -174,29 +174,19 @@ public class collect_tiles : MonoBehaviour {
                 File.WriteAllBytes(elvFilename, elv);
                 return;
             }
-            /*
-            string key = "elv&" + zoom.ToString() + "&" + merc_long.ToString() + "&" + merc_lat.ToString() + "&end";
-            elv = (byte[])elvCache[key];//GetFromCache<byte[]>(elvCache,key);
-            if (elv != null)
-            {
-                //Debug.Log(this.name + " Grabbed Tile from Cache:" + key);
-                File.WriteAllBytes(elvFilename, elv);
 
-            }
-            else
-            {
-            */
                 try
                 {
                     //Debug.Log(elvFilename);
                     //client.DownloadFile(eQuery, elvFilename);
                     elv = client.DownloadData(eQuery);
-                    File.WriteAllBytes(elvFilename, elv);
-                    File.WriteAllBytes(cache_dir + key, elv);
-                    //AddToCache<byte[]>(elvCache ,key, elv);
-                    //Debug.Log(this.name + " Added to cache: " + key);
-                    //elvCache.Insert(key, elv, null, System.Web.Caching.Cache.NoAbsoluteExpiration, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Normal, null);
 
+                if (!File.Exists(elvFilename))
+                    File.Create(elvFilename);
+
+                File.WriteAllBytes(elvFilename, elv);
+                    File.WriteAllBytes(cache_dir + key, elv);
+                    
                 }
                 catch (WebException e)
                 {
@@ -226,6 +216,9 @@ public class collect_tiles : MonoBehaviour {
         try
         {
             //Debug.Log(elvFilename);
+            if(!File.Exists(elvFilename))
+                File.Create(elvFilename);
+
             client.DownloadFile(eQuery, elvFilename);
         }
         catch (WebException e)
@@ -257,6 +250,8 @@ public class collect_tiles : MonoBehaviour {
 
             if (!ImageURL.Equals(oImageURL))
             {
+                if (!File.Exists(aerImageFilename))
+                    File.Create(aerImageFilename);
                 client.DownloadFile(ImageURL, aerImageFilename);
                 oImageURL = ImageURL;
                 image_changed = true;
@@ -305,7 +300,10 @@ public class collect_tiles : MonoBehaviour {
 
         }
         byte[] img;
-        
+
+        if (!File.Exists(aerImageFilename))
+            File.Create(aerImageFilename);
+
         string key = "img&"+ qKey + "&" + texture_mode.ToString()+".jpeg";
         if (System.IO.File.Exists(cache_dir + key))
         {
@@ -314,36 +312,21 @@ public class collect_tiles : MonoBehaviour {
 
             return true;
         }
-        //string 
-        //string 
-        //Debug.Log(bQuery);
-        /*
-        img = (byte[])imgCache[key];//GetFromCache<byte[]>(imgCache,key); //
-        if (img != null)
-        {
-            //Debug.Log(this.name + " Grabbed Tile from Cache: " + key);
-            File.WriteAllBytes(aerImageFilename, img);
-        }
-        else
-        {*/
-            try
-            {
-                img = client.DownloadData(bQuery);
-                File.WriteAllBytes(aerImageFilename, img);
-                File.WriteAllBytes(cache_dir + key, img);
-                //AddToCache<byte[]>(imgCache,key, img);
-                //Debug.Log(this.name + " Added to cache: " + key);
-                //imgCache.Insert(key, img, null, System.Web.Caching.Cache.NoAbsoluteExpiration, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Normal, null );
-                //client.DownloadFile(bQuery, aerImageFilename);
 
-                return true;
-            }
-            catch (WebException e)
-            {
-                Debug.Log("Error Getting Image Data");
-                Debug.LogException(e);
-                Debug.Log(bQuery);
-            };
+        try
+        {
+            img = client.DownloadData(bQuery);
+            File.WriteAllBytes(aerImageFilename, img);
+            File.WriteAllBytes(cache_dir + key, img);
+             
+            return true;
+        }
+        catch (WebException e)
+        {
+            Debug.Log("Error Getting Image Data");
+            Debug.LogException(e);
+            Debug.Log(bQuery);
+        };
         //}
         return false;
     }

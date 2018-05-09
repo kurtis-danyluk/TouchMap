@@ -17,8 +17,6 @@ public class NavigationToggle : MonoBehaviour {
     void Start () {
         m_Drowdown = GetComponent<Dropdown>();
         m_Drowdown.onValueChanged.AddListener(delegate { ChangeNavigationTool(m_Drowdown);});
-
-
 	}
 	
 	// Update is called once per frame
