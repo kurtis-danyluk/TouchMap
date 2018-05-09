@@ -147,6 +147,8 @@ public class SnapBackCam : MonoBehaviour {
                         {                            
                             if (Time.time - stationary_time > 1)
                                 viewPane.SetActive(false);
+                            if (Time.time - stationary_time > 3)
+                                endSphere.SetActive(false);
                         }
                     }
 

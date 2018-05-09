@@ -65,7 +65,7 @@ public class TouchCamera : MonoBehaviour {
 			oldTouchPositions[1] = null;
 		}
 		else if (Input.touchCount == 1) {
-            if (!SnapBackCam.isActive)
+            if (!SnapBackCam.isActive && !ReverseSnapCam.isActive && !TouchController.isActive && !LookFromAt.isActive)
             {
                 if (oldTouchPositions[0] == null || oldTouchPositions[1] != null)
                 {
@@ -113,7 +113,7 @@ public class TouchCamera : MonoBehaviour {
                     if (hasGrown)
                         fingerRatio = (-1) * (/*1.0f / */fingerRatio);
                     else
-                        fingerRatio *= 3;
+                        fingerRatio *= 1;//3;
 
                     if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 20 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
                     {

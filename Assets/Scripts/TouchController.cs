@@ -15,6 +15,10 @@ public class TouchController : MonoBehaviour {
     Vector2 startScreenTouch;
     Vector2 endScreenTouch;
 
+
+    public static bool isActive = false;
+    private float stationary_time;
+
     private bool animateCam = false;
     private IEnumerator coroutine;
 
@@ -49,33 +53,63 @@ public class TouchController : MonoBehaviour {
 
                     if (t.phase == TouchPhase.Began)
                     {
+                        //Moved to long touchs
+                        /*
                         startScreenTouch = t.position;
                         startTouch = hit.point + new Vector3(0, 2, 0);
                         startSphere.transform.position = hit.point;
                         startSphere.SetActive(true);
                         if (coroutine != null)
                             StopCoroutine(coroutine);
-                       
+                       */
 
+                    }
+                    else if(t.phase == TouchPhase.Moved)
+                    {
+                        stationary_time = 0;
                     }
                     else if (t.phase == TouchPhase.Ended)
                     {
-                        endScreenTouch = t.position;
-                        endTouch = hit.point;
-                        startSphere.SetActive(false);
-                        if (Vector2.Distance(startScreenTouch, endScreenTouch) > 10)
+                        stationary_time = 0;
+
+                        if (isActive)
                         {
-                            while (Physics.Linecast(startTouch, endTouch))
+                            isActive = false;
+                            endScreenTouch = t.position;
+                            endTouch = hit.point;
+                            startSphere.SetActive(false);
+                            if (Vector2.Distance(startScreenTouch, endScreenTouch) > 10)
                             {
-                                startTouch += new Vector3(0, 0.1f, 0);
-                                endTouch += new Vector3(0, 0.01f, 0);
+                                while (Physics.Linecast(startTouch, endTouch))
+                                {
+                                    startTouch += new Vector3(0, 0.1f, 0);
+                                    endTouch += new Vector3(0, 0.01f, 0);
+                                }
+                                coroutine = OrientCamera(Camera.main, startTouch, endTouch, Rate);
+                                StartCoroutine(coroutine);
+
                             }
-                            coroutine = OrientCamera(Camera.main, startTouch, endTouch, Rate);
-                            StartCoroutine(coroutine);
-                           
+                            endSphere.transform.position = hit.point;
+                            StartCoroutine(ShowAndHide(endSphere, 60 * Rate));
                         }
-                        endSphere.transform.position = hit.point;
-                        StartCoroutine(ShowAndHide(endSphere, 60 * Rate));
+                    }
+                    else if (t.phase == TouchPhase.Stationary)
+                    {
+                        if (stationary_time == 0)
+                            stationary_time = Time.time;
+
+                        //Debug.Log("Stationary for "+  (Time.time - stationary_time));
+                        if(!isActive && (Time.time - stationary_time) > 0.5f)
+                        {
+                            isActive = true;
+                            startScreenTouch = t.position;
+                            startTouch = hit.point + new Vector3(0, 2, 0);
+                            startSphere.transform.position = hit.point;
+                            startSphere.SetActive(true);
+                            if (coroutine != null)
+                                StopCoroutine(coroutine);
+                        }
+                        
                     }
 
                 }
