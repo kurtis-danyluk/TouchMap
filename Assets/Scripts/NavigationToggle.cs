@@ -62,6 +62,13 @@ public class NavigationToggle : MonoBehaviour {
                 dragZoom.enabled = true;
                 revSnapCam.enabled = false;
                 break;
+            case 5:
+                lookFromAt.enabled = false;
+                lookAtFrom.enabled = false;
+                snapCam.enabled = true;
+                dragZoom.enabled = true;
+                revSnapCam.enabled = false;
+                break;
         }
 
        

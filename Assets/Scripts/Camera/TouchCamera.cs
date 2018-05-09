@@ -6,8 +6,15 @@ using UnityEngine;
 public class TouchCamera : MonoBehaviour {
     public Camera m_OrthographicCamera;
 
+    private GameObject temp;
+
     private const float dragSpeed = 14;
-    private const float zoomSpeed = 0.01f;
+    private const float zoomSpeed = 0.02f;
+    private const float pitchSpeed = 0.1f;
+
+    private bool zoomMode = false;
+    private bool rotateMode = false;
+    private bool pitchMode = false;
 
     public GameObject pitchButton;
 
@@ -36,14 +43,20 @@ public class TouchCamera : MonoBehaviour {
 	Vector2 oldTouchVector;
 	float oldTouchDistance;
 
-    private void OnEnable()
+    void Start()
+    {
+        temp = new GameObject("tempTouchTransform");
+    }
+
+        private void OnEnable()
     {
         pitchButton.SetActive(true);
         ResetCam.resetCam();
     }
     private void OnDisable()
     {
-        pitchButton.SetActive(false);
+        if(pitchButton.gameObject != null)
+            pitchButton.SetActive(false);
     }
 
     void Update() {
@@ -51,18 +64,26 @@ public class TouchCamera : MonoBehaviour {
 			oldTouchPositions[0] = null;
 			oldTouchPositions[1] = null;
 		}
-		else if (Input.touchCount == 1) { 
-			if (oldTouchPositions[0] == null || oldTouchPositions[1] != null) {
-				oldTouchPositions[0] = Input.GetTouch(0).position;
-				oldTouchPositions[1] = null;
-			}
-			else {
-				Vector2 newTouchPosition = Input.GetTouch(0).position;
-				
-				transform.position += transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
-				
-				oldTouchPositions[0] = newTouchPosition;
-			}
+		else if (Input.touchCount == 1) {
+            if (!SnapBackCam.isActive)
+            {
+                if (oldTouchPositions[0] == null || oldTouchPositions[1] != null)
+                {
+                    oldTouchPositions[0] = Input.GetTouch(0).position;
+                    oldTouchPositions[1] = null;
+                }
+                else
+                {
+                    Vector2 newTouchPosition = Input.GetTouch(0).position;
+                    temp.transform.position = transform.position;
+                    temp.transform.eulerAngles = transform.eulerAngles;
+                    temp.transform.eulerAngles =  new Vector3(90, temp.transform.eulerAngles.y, temp.transform.eulerAngles.z);
+
+                    transform.position += temp.transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
+
+                    oldTouchPositions[0] = newTouchPosition;
+                }
+            }
 		}
 		else if (Input.touchCount == 2) {
 			if (oldTouchPositions[1] == null) {
@@ -70,6 +91,7 @@ public class TouchCamera : MonoBehaviour {
 				oldTouchPositions[1] = Input.GetTouch(1).position;
 				oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
 				oldTouchDistance = oldTouchVector.magnitude;
+                zoomMode = rotateMode = pitchMode = false;
 			}
 			else {
 				Vector2 screen = new Vector2(m_OrthographicCamera.pixelWidth, m_OrthographicCamera.pixelHeight);
@@ -79,31 +101,68 @@ public class TouchCamera : MonoBehaviour {
 					Input.GetTouch(1).position
 				};
 				Vector2 newTouchVector = newTouchPositions[0] - newTouchPositions[1];
-
 				float newTouchDistance = newTouchVector.magnitude;
 
-                bool hasGrown = (oldTouchDistance - newTouchDistance) > 0 ? true : false;
-                float fingerRatio = (oldTouchDistance / newTouchDistance);
-
-                if(hasGrown)
-                    fingerRatio = (-1) * (1.0f / fingerRatio);
-
-                if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 5)
+                //If I'm not already rotating...
+                if (!(rotateMode || pitchMode))
                 {
-                    if (Mathf.Abs(fingerRatio) > 0.1)
-                        transform.position += new Vector3(0, transform.position.y * fingerRatio * zoomSpeed, 0);
-                    oldTouchPositions[0] = newTouchPositions[0];
-                    oldTouchPositions[1] = newTouchPositions[1];
+                    //Handle Zooms
+                    bool hasGrown = (oldTouchDistance - newTouchDistance) > 0 ? true : false;
+                    float fingerRatio = (oldTouchDistance / newTouchDistance);
+
+                    if (hasGrown)
+                        fingerRatio = (-1) * (/*1.0f / */fingerRatio);
+                    else
+                        fingerRatio *= 3;
+
+                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 20 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
+                    {
+                        zoomMode = true;
+
+                        if (Mathf.Abs(fingerRatio) > 0.1)
+                            transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed)) ;
+                        oldTouchPositions[0] = newTouchPositions[0];
+                        oldTouchPositions[1] = newTouchPositions[1];
+                        oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                        oldTouchDistance = oldTouchVector.magnitude;
+                    }
                 }
 
-                if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > 0.2)
+                //If I'm not already zooming...
+                if (!( zoomMode || pitchMode))
                 {
-                    if (!isPitched)
-                        transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
-                    oldTouchVector = newTouchVector;
-                    oldTouchDistance = newTouchDistance;
+                    //Handle Rotations
+                    if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 15) || rotateMode)
+                    {
+                        rotateMode = true;
+                        if (!isPitched)
+                            transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
+                        oldTouchVector = newTouchVector;
+                        oldTouchDistance = newTouchDistance;
+                    }
                 }
 
+                //If I'm not already rotating or zooming
+                if (!(zoomMode || rotateMode))
+                {
+
+                    //Handle Pitches
+                    float oneDif = oldTouchPositions[0].Value.y - newTouchPositions[0].y;
+                    float twoDif = oldTouchPositions[1].Value.y - newTouchPositions[1].y;
+                    float avDif = (oneDif + twoDif) / 2;
+                    if ((oneDif > 5 &&  twoDif > 5) || (oneDif < -5 && twoDif < -5))
+                    {
+                        pitchMode = true;
+
+                        float newPitch = Mathf.Clamp(transform.eulerAngles.x + avDif * pitchSpeed, 0, 90);
+                        isPitched = newPitch != 90 ? true : false;
+                        transform.rotation = Quaternion.Euler(new Vector3(newPitch, transform.eulerAngles.y, transform.eulerAngles.z));                   
+                        oldTouchPositions[0] = newTouchPositions[0];
+                        oldTouchPositions[1] = newTouchPositions[1];
+                    }
+                   
+
+                }
 
             }
 		}
@@ -145,7 +204,12 @@ public class TouchCamera : MonoBehaviour {
         for (float i = 0; i <= 1; i += rate)
         {
             float j = TouchController.smoothstep(0, 1, i);
-            tran.eulerAngles = Vector3.Lerp(startA, endA, j);
+
+            Quaternion startAQ = Quaternion.Euler(startA);
+            Quaternion endAQ = Quaternion.Euler(endA);
+
+            //tran.eulerAngles = Vector3.Lerp(startA, endA, j);
+            tran.rotation = Quaternion.Lerp(startAQ, endAQ, j);
             yield return null;
         }
     }

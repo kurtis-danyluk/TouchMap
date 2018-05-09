@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Net;
-using System.Web;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+//using System.Web;
 
 public class collect_tiles : MonoBehaviour {
 
