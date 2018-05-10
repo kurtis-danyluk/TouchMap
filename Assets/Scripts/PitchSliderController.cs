@@ -16,7 +16,7 @@ public class PitchSliderController : MonoBehaviour {
         p_Button = transform.parent.gameObject.GetComponent<Button>();
 
         tCam.OnVariableChange += adjustToPitch;
-        p_Button.onClick.AddListener(delegate { changeSlider(); });
+        p_Button.onClick.AddListener(delegate { tCam.unpitchCam(); });
         m_Slider.onValueChanged.AddListener(delegate { tCam.pitchCamera(m_Slider.value); });
 	}
 

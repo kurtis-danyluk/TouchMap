@@ -177,13 +177,13 @@ public class mapTile : MonoBehaviour {
 
     }
 
-    IEnumerator loadTile()
+    IEnumerator loadTile(int LOD = -1)
     {
         //Grab a heightmap and throw it in our heights list
 
         //Grab a texture and throw it in our splats
         SplatPrototype[] nSplats = new SplatPrototype[pieces];
-        for(int i =0; i< pieces; i++)
+        for (int i = 0; i < pieces; i++)
         {
             int merc_lon = mercX + (i / detail);
             int merc_lat = mercY + (i % detail);
@@ -207,7 +207,7 @@ public class mapTile : MonoBehaviour {
             Debug.Log(e.Message);
         }
 
-        
+
 
         for (int i = 0; i < pieces; i++)
         {
@@ -250,7 +250,7 @@ public class mapTile : MonoBehaviour {
         }
 
 
-        float[,] heightM = new float[256*detail,256*detail];//Terr.terrainData.GetHeights(0, 0, 256*detail, 256*detail);
+        float[,] heightM = new float[256 * detail, 256 * detail];//Terr.terrainData.GetHeights(0, 0, 256*detail, 256*detail);
         float minHeight = float.MaxValue;
         float maxHeight = float.MinValue;
 
@@ -272,22 +272,30 @@ public class mapTile : MonoBehaviour {
             yield return null;
         }
 
-        for (int i = 0; i < 256*detail; i++)
-            for (int j = 0; j < 256*detail; j++)
+        for (int i = 0; i < 256 * detail; i++)
+            for (int j = 0; j < 256 * detail; j++)
             {
                 heightM[i, j] = heightM[i, j] - minHeight;
                 heightM[i, j] = heightM[i, j] / (maxHeight - minHeight);
             }
 
-        
+
         heightM = collect_tiles.flipMatrix(heightM, Terr.terrainData.heightmapResolution - 1);
-        
+
 
 
 
         Terr.terrainData.SetHeights(0, 0, heightM);
-        Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (zoom - 8f)));
-        Terr.heightmapMaximumLOD = (int)(Mathf.Max(0f, (zoom - 11f)));
+        if (LOD == -1)
+        {
+            Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (zoom - 8f)));
+            Terr.heightmapMaximumLOD = (int)(Mathf.Max(0f, (zoom - 11f)));
+         }
+        else
+        {
+            Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (LOD)));
+            Terr.heightmapMaximumLOD = LOD;
+        }
         //Terr.heightmapPixelError = 64;
 
         float latitude;
@@ -329,12 +337,14 @@ public class mapTile : MonoBehaviour {
         hasChanged = true;
     }
 
-    public void ChangeTile(float lat, float lon, int zoom)
+    public void ChangeTile(float lat, float lon, int zoom, char mode = 'a', int mXOffset = 0, int mYOffset = 0, int LOD = -1)
     {
         this.zoom = zoom;
+        tileType = mode;
         collect_tiles.mercator(lat, lon, zoom, out mercX, out mercY);
-        
-        StartCoroutine(loadTile());
+        mercX += mXOffset;
+        mercY += mYOffset;
+        StartCoroutine(loadTile(LOD));
     }
 
 }

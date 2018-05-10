@@ -26,10 +26,16 @@ public class LocationDropdown : MonoBehaviour {
         switch (change.value)
         {
             case 0:
-                map.ChangeTile(51.2894f, -115.4f, 11);
+                map.ChangeTile(51.2894f, -115.4f, 11); //Canmore
                 break;
             case 1:
-                map.ChangeTile(27.9446f, 86.9058f, 13);
+                map.ChangeTile(28.1000f, 86.8658f, 13,'a',0,0,4); //Everest
+                break;
+            case 2:
+                map.ChangeTile(37.048f, -110.122f, 13, 'a', -3, -2, 1); //Monument valley
+                break;
+            case 3:
+                map.ChangeTile(51.1345f, 1.3573f, 15, 'a', -3, -1, 4); //Cliffs of Dover
                 break;
 
         }

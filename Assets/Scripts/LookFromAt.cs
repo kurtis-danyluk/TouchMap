@@ -81,7 +81,9 @@ public class LookFromAt : MonoBehaviour {
                             startSphere.SetActive(false);
                             if (Vector2.Distance(startScreenTouch, endScreenTouch) > 10)
                             {
-                                while (Physics.Linecast(startTouch, endTouch))
+
+                                startTouch += (startTouch - endTouch).normalized * 15;
+                                while (Physics.Linecast(startTouch - new Vector3(0, 5, 0) , endTouch))
                                 {
                                     startTouch += new Vector3(0, 0.01f, 0);
                                     endTouch += new Vector3(0, 0.1f, 0);

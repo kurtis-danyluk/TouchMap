@@ -150,7 +150,7 @@ public class TouchCamera : MonoBehaviour {
                     float oneDif = oldTouchPositions[0].Value.y - newTouchPositions[0].y;
                     float twoDif = oldTouchPositions[1].Value.y - newTouchPositions[1].y;
                     float avDif = (oneDif + twoDif) / 2;
-                    if ((oneDif > 5 &&  twoDif > 5) || (oneDif < -5 && twoDif < -5))
+                    if (((oneDif > 5 &&  twoDif > 5) || (oneDif < -5 && twoDif < -5) && pitchMode) || ((oneDif > 20 && twoDif > 20) || (oneDif < -20 && twoDif < -20)))
                     {
                         pitchMode = true;
 
@@ -168,6 +168,7 @@ public class TouchCamera : MonoBehaviour {
 		}
 	}
     private IEnumerator coroutine;
+   
     public void pitchCamera()
     {
         if (coroutine != null)
@@ -214,4 +215,15 @@ public class TouchCamera : MonoBehaviour {
         }
     }
 
+    public void unpitchCam()
+    {
+        if (coroutine != null)
+            StopCoroutine(coroutine);
+        //if pitched, unpitch
+        if (isPitched)
+        {
+            coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f, 0, 0), Rate);
+            isPitched = false;
+        }
+    }
 }

@@ -81,11 +81,16 @@ public class TouchController : MonoBehaviour {
                             startSphere.SetActive(false);
                             if (Vector2.Distance(startScreenTouch, endScreenTouch) > 10)
                             {
-                                while (Physics.Linecast(startTouch, endTouch))
+
+                                startTouch -= (endTouch - startTouch).normalized * 15;
+
+                                while (Physics.Linecast(startTouch, endTouch - new Vector3(0,5,0)))
                                 {
                                     startTouch += new Vector3(0, 0.1f, 0);
                                     endTouch += new Vector3(0, 0.01f, 0);
                                 }
+                                //set camera  a bit back so you can see your start point
+
                                 coroutine = OrientCamera(Camera.main, startTouch, endTouch, Rate);
                                 StartCoroutine(coroutine);
 
@@ -106,7 +111,9 @@ public class TouchController : MonoBehaviour {
                             startScreenTouch = t.position;
                             startTouch = hit.point + new Vector3(0, 2, 0);
                             startSphere.transform.position = hit.point;
-                            startSphere.SetActive(true);
+                            if(Vector3.Distance(startSphere.transform.position, Camera.main.transform.position) > 20)
+                                startSphere.SetActive(true);
+
                             if (coroutine != null)
                                 StopCoroutine(coroutine);
                         }
