@@ -95,6 +95,11 @@ public class TouchController : MonoBehaviour {
                                 StartCoroutine(coroutine);
 
                             }
+                            else
+                            {
+                                coroutine = OrientCamera(Camera.main, Camera.main.transform.position, endTouch, Rate);
+                                StartCoroutine(coroutine);
+                            }
                             endSphere.transform.position = hit.point;
                             StartCoroutine(ShowAndHide(endSphere, 60 * Rate));
                         }
@@ -123,7 +128,7 @@ public class TouchController : MonoBehaviour {
                 }
     }
 
-    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate)
+    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
@@ -142,7 +147,7 @@ public class TouchController : MonoBehaviour {
         }
     }
 
-    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate)
+    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;

@@ -92,6 +92,11 @@ public class LookFromAt : MonoBehaviour {
                                 StartCoroutine(coroutine);
 
                             }
+                            else
+                            {
+                                coroutine = TouchController.OrientCamera(Camera.main, Camera.main.transform.position, endTouch, Rate);
+                                StartCoroutine(coroutine);
+                            }
                             endSphere.transform.position = hit.point;
                             StartCoroutine(TouchController.ShowAndHide(endSphere, 60 * Rate));
                         }
