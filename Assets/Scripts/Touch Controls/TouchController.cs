@@ -128,10 +128,13 @@ public class TouchController : MonoBehaviour {
                 }
     }
 
-    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate)
+    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate, float fov = -1)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
+        float startF = cam.fieldOfView;
+        float endF = fov == -1 ? startF : fov;
+        
 
         temp.transform.position = location;
         temp.transform.LookAt(lookTo);
@@ -142,21 +145,26 @@ public class TouchController : MonoBehaviour {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
             cam.transform.rotation = Quaternion.Lerp(startA, endA, j);
+            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
 
             yield return null;
         }
     }
 
-    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate)
+    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate, float fov = -1)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
+
+        float startF = cam.fieldOfView;
+        float endF = fov == -1 ? startF : fov;
 
         for (float i = 0; i <= 1; i += rate)
         {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
             cam.transform.rotation = Quaternion.Lerp(startA, lookTo, j);
+            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
 
             yield return null;
         }

@@ -16,13 +16,23 @@ public class PitchSliderController : MonoBehaviour {
         p_Button = transform.parent.gameObject.GetComponent<Button>();
 
         tCam.OnVariableChange += adjustToPitch;
+        tCam.OnVariableChange += showP_Button;
+
         p_Button.onClick.AddListener(delegate { tCam.unpitchCam(); });
         m_Slider.onValueChanged.AddListener(delegate { tCam.pitchCamera(m_Slider.value); });
 	}
 
+    private void showP_Button(bool isPitch)
+    {
+        p_Button.gameObject.SetActive(isPitch);
+        //Debug.Log("I Ran" + isPitch);
+    }
+
     private void adjustToPitch(bool isPitch)
     {
+        
         m_Slider.value = isPitch ? cameraTransform.eulerAngles.x : 90f;
+        m_Slider.normalizedValue = cameraTransform.eulerAngles.x / 90;
     }
     private void changeSlider()
     {     

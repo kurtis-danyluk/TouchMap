@@ -58,15 +58,7 @@ public class SnapBackCam : MonoBehaviour {
 
                     if (t.phase == TouchPhase.Began)
                     {
-                        /*
-                        isActive = true;   
-                        startTouch = hit.point + new Vector3(0, 2, 0);
-                        startSphere.transform.position = hit.point;
-                        startSphere.SetActive(true);
-                        viewPane.SetActive(true);
-                        touchStartPosPanel.transform.position = (t.position);
-                        touchStartPosPanel.SetActive(true);
-                        */
+                  
                     }
                     else if (t.phase == TouchPhase.Moved)
                     {
@@ -117,7 +109,8 @@ public class SnapBackCam : MonoBehaviour {
                             endSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
-                            StartCoroutine(TouchController.OrientCamera(Camera.main, setCam.transform.position, setCam.transform.rotation, Rate * 0.3f));
+                            ResetCam.resetCam(Camera.main);
+                            //StartCoroutine(TouchController.OrientCamera(Camera.main, setCam.transform.position, setCam.transform.rotation, Rate * 0.3f));
                         }
                     }
                     else if(t.phase == TouchPhase.Stationary)

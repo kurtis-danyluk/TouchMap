@@ -5,12 +5,15 @@ using UnityEngine;
 
 public class TouchCamera : MonoBehaviour {
     public Camera m_OrthographicCamera;
-
+    public Camera cam;
     private GameObject temp;
 
-    private const float dragSpeed = 14;
-    private const float zoomSpeed = 0.02f;
+    private const float dragSpeed = 526;
+    private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
+    private static readonly float[] boundsZoom = new float[]{ 2, 120 };
+    private static readonly float[] boundsX = new float[] { 0, 1024 };
+    private static readonly float[] boundsY = new float[] { 0, 1024 };
 
     private bool zoomMode = false;
     private bool rotateMode = false;
@@ -46,6 +49,7 @@ public class TouchCamera : MonoBehaviour {
     void Start()
     {
         temp = new GameObject("tempTouchTransform");
+        cam = GetComponent<Camera>();
     }
 
         private void OnEnable()
@@ -78,8 +82,17 @@ public class TouchCamera : MonoBehaviour {
                     temp.transform.position = transform.position;
                     temp.transform.eulerAngles = transform.eulerAngles;
                     temp.transform.eulerAngles =  new Vector3(90, temp.transform.eulerAngles.y, temp.transform.eulerAngles.z);
+                    Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
+                    Vector3 movement = new Vector3(offset.x * dragSpeed, offset.y * dragSpeed, 0);
+                    //transform.Translate(movement, Space.World);
+                    transform.position += transform.TransformDirection(movement);
 
-                    transform.position += temp.transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
+                    Vector3 pos = transform.position;
+                    pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
+                    pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
+                    transform.position = pos;
+
+                    //transform.position += temp.transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
 
                     oldTouchPositions[0] = newTouchPosition;
                 }
@@ -119,8 +132,10 @@ public class TouchCamera : MonoBehaviour {
                     {
                         zoomMode = true;
 
-                        if (Mathf.Abs(fingerRatio) > 0.1)
-                            transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed)) ;
+                        //if (Mathf.Abs(fingerRatio) > 0.1)
+                            //transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed)) ;
+                        Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - fingerRatio * zoomSpeed, boundsZoom[0], boundsZoom[1]);
+
                         oldTouchPositions[0] = newTouchPositions[0];
                         oldTouchPositions[1] = newTouchPositions[1];
                         oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
@@ -217,12 +232,13 @@ public class TouchCamera : MonoBehaviour {
 
     public void unpitchCam()
     {
-        if (coroutine != null)
-            StopCoroutine(coroutine);
+        //if (coroutine != null)
+          //  StopCoroutine(coroutine);
         //if pitched, unpitch
         if (isPitched)
         {
             coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f, 0, 0), Rate);
+            StartCoroutine(coroutine);
             isPitched = false;
         }
     }
