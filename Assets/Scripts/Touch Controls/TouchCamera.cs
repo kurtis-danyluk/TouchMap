@@ -12,12 +12,14 @@ public class TouchCamera : MonoBehaviour {
     private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
     private static readonly float[] boundsZoom = new float[]{ 2, 120 };
-    private static readonly float[] boundsX = new float[] { 0, 1024 };
-    private static readonly float[] boundsY = new float[] { 0, 1024 };
+    private static readonly float[] boundsX = new float[] { -1024, 2048 };
+    private static readonly float[] boundsY = new float[] { -1024, 2048 };
 
     private bool zoomMode = false;
     private bool rotateMode = false;
     private bool pitchMode = false;
+
+    private float oPitch;
 
     public GameObject pitchButton;
 
@@ -27,7 +29,15 @@ public class TouchCamera : MonoBehaviour {
         get { return i_isPitched; }
         set
         {
-            if (i_isPitched == value) return;
+            if (i_isPitched == value)
+            {
+                if (oPitch != cam.transform.eulerAngles.x)
+                {
+                    oPitch = cam.transform.eulerAngles.x;
+                    OnVariableChange(isPitched);
+                    return;
+                }
+            }
             i_isPitched = value;
             if (OnVariableChange != null)
                 OnVariableChange(isPitched);
@@ -50,6 +60,7 @@ public class TouchCamera : MonoBehaviour {
     {
         temp = new GameObject("tempTouchTransform");
         cam = GetComponent<Camera>();
+        ResetCam.CameraReset += camReset;
     }
 
         private void OnEnable()
@@ -64,6 +75,7 @@ public class TouchCamera : MonoBehaviour {
     }
 
     void Update() {
+        
 		if (Input.touchCount == 0) {
 			oldTouchPositions[0] = null;
 			oldTouchPositions[1] = null;
@@ -79,13 +91,19 @@ public class TouchCamera : MonoBehaviour {
                 else
                 {
                     Vector2 newTouchPosition = Input.GetTouch(0).position;
-                    temp.transform.position = transform.position;
-                    temp.transform.eulerAngles = transform.eulerAngles;
-                    temp.transform.eulerAngles =  new Vector3(90, temp.transform.eulerAngles.y, temp.transform.eulerAngles.z);
+                    //temp.transform.position = transform.position;
+                    //temp.transform.eulerAngles = transform.eulerAngles;
+                    //temp.transform.eulerAngles =  new Vector3(90, temp.transform.eulerAngles.y, temp.transform.eulerAngles.z);
                     Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
                     Vector3 movement = new Vector3(offset.x * dragSpeed, offset.y * dragSpeed, 0);
-                    //transform.Translate(movement, Space.World);
-                    transform.position += transform.TransformDirection(movement);
+
+                    temp.transform.position = transform.position;
+                    temp.transform.eulerAngles = new Vector3(90, transform.eulerAngles.y, transform.eulerAngles.z);
+
+                    temp.transform.Translate(movement, Space.Self);
+
+                    transform.position = temp.transform.position;
+                    //transform.position += movement;//transform.TransformDirection(movement);
 
                     Vector3 pos = transform.position;
                     pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
@@ -230,6 +248,12 @@ public class TouchCamera : MonoBehaviour {
         }
     }
 
+    public void camReset(Camera cam)
+    {
+        if (cam == this.cam)
+            isPitched = false;
+    }
+
     public void unpitchCam()
     {
         //if (coroutine != null)
@@ -237,8 +261,10 @@ public class TouchCamera : MonoBehaviour {
         //if pitched, unpitch
         if (isPitched)
         {
-            coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f, 0, 0), Rate);
-            StartCoroutine(coroutine);
+            //coroutine = TouchController.OrientCamera(this.GetComponent<Camera>(), transform.position, Quaternion.Euler(new Vector3(0, 1, 0)));
+            //coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f, 0, 0), Rate);
+            //StartCoroutine(coroutine);
+            transform.eulerAngles = new Vector3(90f, 0, 0);
             isPitched = false;
         }
     }

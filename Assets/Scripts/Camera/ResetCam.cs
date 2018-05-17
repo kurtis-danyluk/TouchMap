@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ResetCam : MonoBehaviour {
+
+
+    public delegate void OnVariableChangeDelegate(Camera cam);
+    public static event OnVariableChangeDelegate CameraReset;
+
     static public ResetCam instance;
     private void Start()
     {
@@ -16,8 +21,12 @@ public class ResetCam : MonoBehaviour {
 
     public static void resetCam(Camera cam)
     {
-        if(instance != null)
+        if (instance != null)
+        {
             instance.StartCoroutine(TouchController.OrientCamera(cam, new Vector3(526, 1000, 526), new Vector3(526, 900, 526), fov: 60));
+            if(CameraReset != null)
+                CameraReset(cam);
+        }
     }
 
     public void ResetCamWrapper()
@@ -27,7 +36,8 @@ public class ResetCam : MonoBehaviour {
 
     public void ResetCamWrapper(Camera cam)
     {
-        StartCoroutine(TouchController.OrientCamera(cam, new Vector3(526, 1000, 526), new Vector3(526, 900, 526),fov:60));
+        resetCam(cam);
+        //StartCoroutine(TouchController.OrientCamera(cam, new Vector3(526, 1000, 526), new Vector3(526, 900, 526),fov:60));
         //resetCam(cam);
     }
 

@@ -30,6 +30,7 @@ public class ReverseSnapCam : MonoBehaviour {
         temp = new GameObject("revSetCamHolder");
         setCam = temp.AddComponent<Camera>();
         setCam.CopyFrom(Camera.main);
+        ResetCam.resetCam(setCam);
         setCam.targetDisplay = 1;
         setCam.depth = 1;
         viewPane.SetActive(false);

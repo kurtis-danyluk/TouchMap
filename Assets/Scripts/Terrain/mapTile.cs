@@ -288,12 +288,12 @@ public class mapTile : MonoBehaviour {
         Terr.terrainData.SetHeights(0, 0, heightM);
         if (LOD == -1)
         {
-            Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (zoom - 8f)));
+            Terr.heightmapPixelError = 1;//Mathf.Pow(2, Mathf.Max(0f, (zoom - 8f)));
             Terr.heightmapMaximumLOD = (int)(Mathf.Max(0f, (zoom - 11f)));
          }
         else
         {
-            Terr.heightmapPixelError = Mathf.Pow(2, Mathf.Max(0f, (LOD)));
+            Terr.heightmapPixelError = 1;//Mathf.Pow(2, Mathf.Max(0f, (LOD)));
             Terr.heightmapMaximumLOD = LOD;
         }
         //Terr.heightmapPixelError = 64;

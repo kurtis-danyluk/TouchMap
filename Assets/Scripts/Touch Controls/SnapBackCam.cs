@@ -35,6 +35,8 @@ public class SnapBackCam : MonoBehaviour {
         setCam.targetDisplay = 1;
         setCam.depth = 1;
         setCam.fieldOfView = 60;
+        ResetCam.resetCam(setCam);
+
         viewPane.SetActive(false);
         touchStartPosPanel.SetActive(false);
         touchEndPosPanel.SetActive(false);
@@ -43,6 +45,8 @@ public class SnapBackCam : MonoBehaviour {
     private void OnEnable()
     {
         ResetCam.resetCam();
+        if(setCam != null)
+            ResetCam.resetCam(setCam);
     }
 
 

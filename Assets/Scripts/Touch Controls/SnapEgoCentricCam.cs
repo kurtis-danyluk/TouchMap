@@ -71,10 +71,10 @@ public class SnapEgoCentricCam : MonoBehaviour {
                         if (isActive)
                         {
 
-                            Vector3 worldP = setCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 1200));
+                            Vector3 worldP = topCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 1200));
                             Vector3 dir = (worldP - setCam.transform.position).normalized;
                             RaycastHit hit;
-                            Physics.Raycast(setCam.transform.position + (dir * setCam.nearClipPlane), dir, out hit, setCam.farClipPlane);
+                            Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
 
 
                             if (move_time == 0)
@@ -146,7 +146,7 @@ public class SnapEgoCentricCam : MonoBehaviour {
 
                             
 
-                            touchStartPosPanel.transform.position = (setCam.WorldToScreenPoint(hit.point));
+                            touchStartPosPanel.transform.position = (topCam.WorldToScreenPoint(hit.point));
                             touchStartPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y, 0);
                             touchStartPosPanel.SetActive(true);
                         }
@@ -155,7 +155,7 @@ public class SnapEgoCentricCam : MonoBehaviour {
                             if(Time.time - stationary_time > 0.5 && Time.time - stationary_time < 1.0f)
                             {
 
-                                viewPane.transform.eulerAngles = new Vector3(0, 0, Camera.main.transform.eulerAngles.y);
+                                topCam.transform.eulerAngles = new Vector3(0, 0, Camera.main.transform.eulerAngles.y);
                                 setCam.transform.eulerAngles = new Vector3(90, Camera.main.transform.eulerAngles.y, 0);
                                 
 

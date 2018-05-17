@@ -18,9 +18,13 @@ public class PitchSliderController : MonoBehaviour {
         tCam.OnVariableChange += adjustToPitch;
         tCam.OnVariableChange += showP_Button;
 
-        p_Button.onClick.AddListener(delegate { tCam.unpitchCam(); });
-        m_Slider.onValueChanged.AddListener(delegate { tCam.pitchCamera(m_Slider.value); });
-	}
+        ResetCam.CameraReset += camReset;
+
+        p_Button.onClick.AddListener(delegate { unPitch(); });
+        //m_Slider.onValueChanged.AddListener(delegate { tCam.pitchCamera(m_Slider.value); });
+
+        p_Button.gameObject.SetActive(false);
+    }
 
     private void showP_Button(bool isPitch)
     {
@@ -28,11 +32,30 @@ public class PitchSliderController : MonoBehaviour {
         //Debug.Log("I Ran" + isPitch);
     }
 
+    private void unPitch()
+    {
+        //Debug.Log("Unpitched");
+        tCam.unpitchCam();
+    }
+
+    private void camReset(Camera cam)
+    {
+        showP_Button(false);
+        adjustToPitch(false);
+    }
+
     private void adjustToPitch(bool isPitch)
     {
-        
-        m_Slider.value = isPitch ? cameraTransform.eulerAngles.x : 90f;
-        m_Slider.normalizedValue = cameraTransform.eulerAngles.x / 90;
+        if (isPitch)
+        {
+            m_Slider.value = Camera.main.transform.eulerAngles.x;
+           // Debug.Log("Transform: " + Camera.main.transform.eulerAngles.x);
+        }
+        else
+        {
+            m_Slider.value = 90;
+        }
+      //  Debug.Log("Changed slider value to: " + m_Slider.value);
     }
     private void changeSlider()
     {     

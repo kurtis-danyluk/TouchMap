@@ -26,6 +26,7 @@ public class TouchController : MonoBehaviour {
     void Start () {
 		temp = new GameObject();
         temp.name = "tempPos";
+        
     }
 
     private void OnEnable()
