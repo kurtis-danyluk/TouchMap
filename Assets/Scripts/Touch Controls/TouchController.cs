@@ -15,6 +15,7 @@ public class TouchController : MonoBehaviour {
     Vector2 startScreenTouch;
     Vector2 endScreenTouch;
 
+    static public TouchController instance;
 
     public static bool isActive = false;
     private float stationary_time;
@@ -26,7 +27,7 @@ public class TouchController : MonoBehaviour {
     void Start () {
 		temp = new GameObject();
         temp.name = "tempPos";
-        
+        instance = this;
     }
 
     private void OnEnable()
@@ -131,17 +132,41 @@ public class TouchController : MonoBehaviour {
 
     public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate, float fov = -1)
     {
-        Vector3 startP = cam.transform.position;
-        Quaternion startA = cam.transform.rotation;
-        float startF = cam.fieldOfView;
-        float endF = fov == -1 ? startF : fov;
-        
-
+        //Transform the lookto point to be a quaternion rotation
         temp.transform.position = location;
         temp.transform.LookAt(lookTo);
         Quaternion endA = temp.transform.rotation;
 
-        for(float i = 0; i <= 1; i += rate)
+        //Pass it to the quaternion version
+        //instance.StartCoroutine(OrientCamera(cam, location, endA, rate, fov));
+        //return this;
+        
+        //Keep this awhile incase there is any bugs in conversion
+        
+        Vector3 startP = cam.transform.position;
+        Quaternion startA = cam.transform.rotation;
+        float startF = cam.fieldOfView;
+        float endF = fov == -1 ? startF : fov;
+
+
+        float startTime = Time.time;
+        //We assume the scene 'should' be at 60fps.  and lock orient camera to that assumption
+        float length = 60 * rate;
+        float endTime = startTime + length;
+
+        do
+        {
+            float dur = (Time.time - startTime);
+            float i = dur / length;
+            float j = smoothstep(0, 1, i);
+            cam.transform.position = Vector3.Lerp(startP, location, j);
+            cam.transform.rotation = Quaternion.Lerp(startA, endA, j);
+            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
+
+            yield return null;
+        } while (Time.time < endTime);
+        /*
+        for (float i = 0; i <= 1; i += rate)
         {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
@@ -149,10 +174,11 @@ public class TouchController : MonoBehaviour {
             cam.fieldOfView = Mathf.Lerp(startF, endF, j);
 
             yield return null;
-        }
+        }*/
+
     }
 
-    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate, float fov = -1)
+    public static IEnumerator OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate, float fov = -1, bool isTimeStepped = true)
     {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
@@ -160,6 +186,11 @@ public class TouchController : MonoBehaviour {
         float startF = cam.fieldOfView;
         float endF = fov == -1 ? startF : fov;
 
+        float startTime = Time.time;
+        //We assume the scene 'should' be at 60fps.  and lock orient camera to that assumption
+        float length = 60 * rate;
+        float endTime = startTime + length;
+        /*
         for (float i = 0; i <= 1; i += rate)
         {
             float j = smoothstep(0, 1, i);
@@ -168,7 +199,19 @@ public class TouchController : MonoBehaviour {
             cam.fieldOfView = Mathf.Lerp(startF, endF, j);
 
             yield return null;
-        }
+        }*/
+
+        do
+        {
+            float dur = (Time.time - startTime);
+            float i = dur / length;
+            float j = smoothstep(0, 1, i);
+            cam.transform.position = Vector3.Lerp(startP, location, j);
+            cam.transform.rotation = Quaternion.Lerp(startA, lookTo, j);
+            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
+
+            yield return null;
+        } while (Time.time < endTime);
         
     }
 

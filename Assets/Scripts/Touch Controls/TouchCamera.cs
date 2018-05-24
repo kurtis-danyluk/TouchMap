@@ -11,9 +11,9 @@ public class TouchCamera : MonoBehaviour {
     private const float dragSpeed = 526;
     private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
-    private static readonly float[] boundsZoom = new float[]{ 2, 120 };
-    private static readonly float[] boundsX = new float[] { -1024, 2048 };
-    private static readonly float[] boundsY = new float[] { -1024, 2048 };
+    private static readonly float[] boundsZoom = new float[]{ 2, 512 };
+    private static readonly float[] boundsX = new float[] { 0, 1024 };
+    private static readonly float[] boundsY = new float[] { 0, 1024 };
 
     private bool zoomMode = false;
     private bool rotateMode = false;
@@ -107,6 +107,7 @@ public class TouchCamera : MonoBehaviour {
 
                     Vector3 pos = transform.position;
                     pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
+                    pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
                     pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
                     transform.position = pos;
 
@@ -150,9 +151,16 @@ public class TouchCamera : MonoBehaviour {
                     {
                         zoomMode = true;
 
-                        //if (Mathf.Abs(fingerRatio) > 0.1)
-                            //transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed)) ;
-                        Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - fingerRatio * zoomSpeed, boundsZoom[0], boundsZoom[1]);
+                        if (Mathf.Abs(fingerRatio) > 0.1)
+                            transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed * 0.05f)) ;
+
+                        Vector3 pos = transform.position;
+                        pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
+                        pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
+                        pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
+                        transform.position = pos;
+
+                        //Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - fingerRatio * zoomSpeed, boundsZoom[0], boundsZoom[1]);
 
                         oldTouchPositions[0] = newTouchPositions[0];
                         oldTouchPositions[1] = newTouchPositions[1];

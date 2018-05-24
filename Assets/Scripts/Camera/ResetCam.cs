@@ -23,7 +23,7 @@ public class ResetCam : MonoBehaviour {
     {
         if (instance != null)
         {
-            instance.StartCoroutine(TouchController.OrientCamera(cam, new Vector3(526, 1000, 526), new Vector3(526, 900, 526), fov: 60));
+            instance.StartCoroutine(TouchController.OrientCamera(cam, new Vector3(526, 256, 526), new Vector3(526, 100, 526), fov: 60));
             if(CameraReset != null)
                 CameraReset(cam);
         }

@@ -19,6 +19,8 @@ public class ReverseSnapCam : MonoBehaviour {
     private float stationary_time;
     private float move_time;
 
+    private int cocounter = 0;
+
     Vector3 startTouch;
     Vector3 endTouch;
 
@@ -30,9 +32,11 @@ public class ReverseSnapCam : MonoBehaviour {
         temp = new GameObject("revSetCamHolder");
         setCam = temp.AddComponent<Camera>();
         setCam.CopyFrom(Camera.main);
-        ResetCam.resetCam(setCam);
         setCam.targetDisplay = 1;
         setCam.depth = 1;
+        setCam.fieldOfView = 60;
+        setCam.transform.position = new Vector3(526, 1000, 526);
+        setCam.transform.eulerAngles = new Vector3(90, 0, 0);
         viewPane.SetActive(false);
         touchStartPosPanel.SetActive(false);
         touchEndPosPanel.SetActive(false);
@@ -54,14 +58,6 @@ public class ReverseSnapCam : MonoBehaviour {
 
                     if (t.phase == TouchPhase.Began)
                     {
-                        /*
-                        startTouch = hit.point ;
-                        startSphere.transform.position = hit.point;
-                        startSphere.SetActive(true);
-                        viewPane.SetActive(true);
-                        touchStartPosPanel.transform.position = (t.position);
-                        touchStartPosPanel.SetActive(true);
-                        */
 
                     }
                     else if (t.phase == TouchPhase.Moved)
@@ -87,8 +83,11 @@ public class ReverseSnapCam : MonoBehaviour {
                                 viewPane.SetActive(true);
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
-                            if (coroutine != null)
-                                StopCoroutine(coroutine);
+                            if (coroutine != null && Time.time - move_time > 0.1)
+                            {
+                                cocounter = 0;
+                                StopAllCoroutines();// (coroutine);
+                            }
 
                             Vector3 startViewOffset = new Vector3();
                             Vector3 endViewOffset = new Vector3();
@@ -97,8 +96,12 @@ public class ReverseSnapCam : MonoBehaviour {
                                 startViewOffset += new Vector3(0, 0.01f, 0);
                                 endViewOffset += new Vector3(0, 0.1f, 0);
                             }
-                            coroutine = TouchController.OrientCamera(Camera.main, endTouch + endViewOffset, startTouch + startViewOffset, Rate);
-                            StartCoroutine(coroutine);
+                            if (cocounter == 0)
+                            {
+                                coroutine = TouchController.OrientCamera(Camera.main, endTouch + endViewOffset, startTouch + startViewOffset, Rate);
+                                StartCoroutine(coroutine);
+                                cocounter++;
+                            }
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
@@ -112,6 +115,7 @@ public class ReverseSnapCam : MonoBehaviour {
                             startSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
+                            StopAllCoroutines();
                             ResetCam.resetCam();
                             
                         }

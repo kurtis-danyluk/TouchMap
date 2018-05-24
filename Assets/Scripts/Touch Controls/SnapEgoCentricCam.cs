@@ -116,7 +116,9 @@ public class SnapEgoCentricCam : MonoBehaviour {
                             endSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
-                            StartCoroutine(TouchController.OrientCamera(Camera.main, new Vector3(526,1000,526), new Vector3(90,0,0), Rate * 0.3f));
+                            ResetCam.resetCam(Camera.main);
+                            ResetCam.resetCam(topCam);
+                            //StartCoroutine(TouchController.OrientCamera(Camera.main, new Vector3(526,1000,526), new Vector3(90,0,0), Rate * 0.3f));
                             ResetCam.resetCam(setCam);
                             oldTouchPositions[0] = null;
                             oldTouchPositions[1] = null;
@@ -155,7 +157,9 @@ public class SnapEgoCentricCam : MonoBehaviour {
                             if(Time.time - stationary_time > 0.5 && Time.time - stationary_time < 1.0f)
                             {
 
-                                topCam.transform.eulerAngles = new Vector3(0, 0, Camera.main.transform.eulerAngles.y);
+                                //topCam.transform.eulerAngles = new Vector3(90, Camera.main.transform.eulerAngles.y, 0);
+                                topCam.transform.RotateAround(endSphere.transform.position, new Vector3(0,1, 0), Camera.main.transform.eulerAngles.y);
+
                                 setCam.transform.eulerAngles = new Vector3(90, Camera.main.transform.eulerAngles.y, 0);
                                 
 
