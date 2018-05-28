@@ -30,6 +30,16 @@ public class CameraLink : MonoBehaviour {
         overlayCam.transform.position = pos;
     }
 
+    public static void syncPoint(Vector3 location, Camera overlayCam)
+    {
+        overlayCam.transform.position = new Vector3(location.x, overlayCam.transform.position.y, location.z);
+        Vector3 pos = overlayCam.transform.position;
+        pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
+        pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
+
+        overlayCam.transform.position = pos;
+    }
+
 	// Update is called once per frame
 	void Update () {
         overlayCam.transform.position = new Vector3(mainCam.transform.position.x, overlayCam.transform.position.y, mainCam.transform.position.z);
