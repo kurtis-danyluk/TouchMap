@@ -96,8 +96,11 @@ public class SnapBackCam : MonoBehaviour {
                             startSphere.SetActive(false);
                             endSphere.SetActive(true);
                             if (Time.time - move_time >= 0.2)
-                                viewPane.SetActive(true);
+                            {
 
+                                viewPane.SetActive(true);
+                                viewPane.GetComponent<ViewPaneTexture>().fadeIn();
+                            }
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
                             if (coroutine != null && Time.time - move_time > 0.1)
@@ -114,7 +117,9 @@ public class SnapBackCam : MonoBehaviour {
                                 startViewOffset += new Vector3(0, 0.1f, 0);
                                 endViewOffset += new Vector3(0, 0.01f, 0);
                             }
-                            //touchStartPosPanel.transform.position = (setCam.WorldToScreenPoint(startTouch + startViewOffset));
+
+                            startViewOffset += new Vector3(0, 0.1f * Vector3.Distance(touchStartPosPanel.transform.position,touchEndPosPanel.transform.position), 0);
+
                             if (cocounter == 0)
                             {
                                 coroutine = TouchController.OrientCamera(Camera.main, startTouch + startViewOffset, endTouch + endViewOffset, Rate);
@@ -132,6 +137,7 @@ public class SnapBackCam : MonoBehaviour {
                             isActive = false;
                             viewPane.SetActive(false);
                             endSphere.SetActive(false);
+                            startSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
                             StopAllCoroutines();
@@ -175,7 +181,10 @@ public class SnapBackCam : MonoBehaviour {
                         {                            
                             if (Time.time - stationary_time > 1) {
 
-                                viewPane.SetActive(false);
+
+                                if(viewPane.activeSelf)
+                                    viewPane.GetComponent<ViewPaneTexture>().fadeTexture(0, Rate * 3);
+
                                 CameraLink.syncCam(Camera.main, topCam);
 
                                 // determine where the start touch panel should be
@@ -193,6 +202,7 @@ public class SnapBackCam : MonoBehaviour {
                             }
                             if (Time.time - stationary_time > 3)
                                 endSphere.SetActive(false);
+                                //viewPane.SetActive(false);
                         }
                     }
 

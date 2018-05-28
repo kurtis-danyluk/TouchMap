@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class ReverseSnapCam : MonoBehaviour {
 
-    private const float Rate = (1f / 60f);
+    private const float Rate = (1f / 90f);
     public GameObject startSphere;
     public GameObject endSphere;
     private GameObject temp;
@@ -90,7 +90,10 @@ public class ReverseSnapCam : MonoBehaviour {
                             startSphere.SetActive(false);
                             startSphere.SetActive(true);
                             if (Time.time - move_time >= 0.2)
+                            {
                                 viewPane.SetActive(true);
+                                viewPane.GetComponent<ViewPaneTexture>().fadeIn();
+                            }
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
 
@@ -108,6 +111,8 @@ public class ReverseSnapCam : MonoBehaviour {
                                 startViewOffset += new Vector3(0, 0.01f, 0);
                                 endViewOffset += new Vector3(0, 0.1f, 0);
                             }
+
+                            endViewOffset += new Vector3(0, 0.1f * Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position), 0);
                             if (cocounter == 0)
                             {
                                 coroutine = TouchController.OrientCamera(Camera.main, endTouch + endViewOffset, startTouch + startViewOffset, Rate);
@@ -169,6 +174,9 @@ public class ReverseSnapCam : MonoBehaviour {
                         {
                             if (Time.time - stationary_time > 1)
                             {
+
+                                if (viewPane.activeSelf)
+                                    viewPane.GetComponent<ViewPaneTexture>().fadeTexture(0, Rate * 5);
                                 CameraLink.syncPoint(startSphere.transform.position, topCam);
 
                                 // determine where the start touch panel should be
@@ -182,7 +190,7 @@ public class ReverseSnapCam : MonoBehaviour {
                                 touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x / 2, (vpSpace.y * olWH.y) - olWH.y / 2);
 
 
-                                viewPane.SetActive(false);
+                                //viewPane.SetActive(false);
                             }
                             if (Time.time - stationary_time > 3)
                                 startSphere.SetActive(false);
