@@ -1,21 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class SnapBackCam : MonoBehaviour {
+public class TransitionalCam : MonoBehaviour {
 
     private const float Rate = (1f / 60f);
     public GameObject startSphere;
     public GameObject endSphere;
     private GameObject temp;
-    public Camera setCam;
     public Camera topCam;
     public GameObject viewPane;
-    public GameObject maskPanel;
+    public GameObject dirIndicator;
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
+
+    private readonly float interactionMaxDistance = 400;
+
+    private Vector3 startPos;
+    private Quaternion startAngle;
 
     public static bool isActive = false;
 
@@ -28,36 +31,40 @@ public class SnapBackCam : MonoBehaviour {
     Vector3 startTouch;
     Vector3 endTouch;
 
-
-    // Use this for initialization
-    void Start () {
-        viewPane.SetActive(false);
-        maskPanel.SetActive(false);
-        touchStartPosPanel.SetActive(false);
-        touchEndPosPanel.SetActive(false);
-    }
-
     private void OnEnable()
     {
         ResetCam.resetCam(Camera.main);
-        ResetCam.resetCam(setCam);
-        
+        dirIndicator.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        if(dirIndicator != null)
+            dirIndicator.SetActive(false) ;
     }
 
 
+    // Use this for initialization
+    void Start () {
 
+        viewPane.SetActive(false);
+        touchStartPosPanel.SetActive(false);
+        touchEndPosPanel.SetActive(false);
+        endSphere.SetActive(false);
+    }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (!EventSystem.current.IsPointerOverGameObject())
             if (Input.touchCount == 1)
                 foreach (Touch t in Input.touches)
                 {
-                    
+
 
                     if (t.phase == TouchPhase.Began)
                     {
-                  
+
                     }
                     else if (t.phase == TouchPhase.Moved)
                     {
@@ -67,9 +74,9 @@ public class SnapBackCam : MonoBehaviour {
                             Vector2 overlayCoords = viewPane.GetComponent<RectTransform>().position;
                             Vector3 touchInOverlay = t.position - overlayCoords;
 
-                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width/2), (viewPane.GetComponent<RectTransform>().rect.height/2));
-                            Vector2 touchPortCoords = new Vector3(((touchInOverlay.x / olWH.x) + 1.4f) /2.8f, ((touchInOverlay.y / olWH.y) + 1.1f) /2.2f);
-                            Debug.Log(touchPortCoords);
+                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width / 2), (viewPane.GetComponent<RectTransform>().rect.height / 2));
+                            Vector2 touchPortCoords = new Vector3(((touchInOverlay.x / olWH.x) + 1.4f) / 2.8f, ((touchInOverlay.y / olWH.y) + 1.1f) / 2.2f);
+                            //Debug.Log(touchPortCoords);
                             Vector3 worldP = topCam.ViewportToWorldPoint(new Vector3(touchPortCoords.x, touchPortCoords.y, topCam.transform.position.y));
 
                             //Vector3 worldP = setCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 2000));
@@ -84,20 +91,19 @@ public class SnapBackCam : MonoBehaviour {
                             endTouch = hit.point;
                             endSphere.transform.position = hit.point;
                             startSphere.SetActive(false);
-                            endSphere.SetActive(true);
+                            //endSphere.SetActive(true);
                             if (Time.time - move_time >= 0.2)
                             {
 
                                 viewPane.SetActive(true);
-                                maskPanel.SetActive(true);
-                                viewPane.GetComponent<ViewPaneTexture>().fadeIn((1f/5f));
+                                //viewPane.GetComponent<ViewPaneTexture>().fadeIn((1f / 5f));
                             }
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
                             if (coroutine != null && Time.time - move_time > 0.1)
                             {
-                                cocounter = 0;
-                                StopAllCoroutines();// (coroutine);
+                                //cocounter = 0;
+                                //StopAllCoroutines();// (coroutine);
                             }
 
                             Vector3 startViewOffset = new Vector3();
@@ -109,14 +115,29 @@ public class SnapBackCam : MonoBehaviour {
                                 endViewOffset += new Vector3(0, 0.01f, 0);
                             }
 
-                            startViewOffset += new Vector3(0, 0.1f * Vector3.Distance(touchStartPosPanel.transform.position,touchEndPosPanel.transform.position), 0);
+                            float touchDist = Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position);
 
-                            if (cocounter == 0)
-                            {
-                                coroutine = TouchController.OrientCamera(Camera.main, startTouch + startViewOffset, endTouch + endViewOffset, Rate);
-                                StartCoroutine(coroutine);
-                                cocounter++;
-                            }
+                            startViewOffset += new Vector3(0, 0.1f * touchDist, 0);
+
+                            float i = touchDist / interactionMaxDistance;
+                            float jp = TouchController.smoothstep(0, 0.9f, i);
+                            double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
+                            Physics.Raycast(startPos, Vector3.down, out hit);
+                            Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
+                            /*
+                            Vector3 startA = startAngle.eulerAngles;
+                            Vector3 endV = endView.eulerAngles;
+                            Camera.main.transform.eulerAngles =
+                                new Vector3(
+                                    Mathf.Lerp(startA.x, endV.x, i),
+                                    Mathf.Lerp(startA.y, endV.y, i),
+                                    Mathf.Lerp(startA.z, endV.z, i)
+                                    );
+                                    */
+
+                            Camera.main.transform.position = Vector3.Lerp(startPos, endTouch + endViewOffset, jp);
+                            Camera.main.transform.rotation = Quaternion.Lerp(startAngle, endView,(float)jr);
+
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
@@ -127,7 +148,6 @@ public class SnapBackCam : MonoBehaviour {
                             move_time = 0;
                             isActive = false;
                             viewPane.SetActive(false);
-                            maskPanel.SetActive(false);
                             endSphere.SetActive(false);
                             startSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
@@ -141,12 +161,11 @@ public class SnapBackCam : MonoBehaviour {
                             //ResetCam.resetCam(Camera.main);
                             topCam.transform.position = new Vector3(topCam.transform.position.x, 256, topCam.transform.position.z);
                             topCam.orthographicSize = 256;
-                            cocounter++;
-                            StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.position - new Vector3(0,1,0), Rate * 0.3f));
-                            
+                            StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f/120f)));
+
                         }
                     }
-                    else if(t.phase == TouchPhase.Stationary)
+                    else if (t.phase == TouchPhase.Stationary)
                     {
                         move_time = 0;
                         if (stationary_time == 0)
@@ -161,10 +180,13 @@ public class SnapBackCam : MonoBehaviour {
 
                             isActive = true;
                             startTouch = hit.point + new Vector3(0, 2, 0);
+                            startPos = Camera.main.transform.position;
+                            startAngle = Camera.main.transform.rotation;
                             startSphere.transform.position = hit.point;
                             startSphere.SetActive(true);
+                            endSphere.SetActive(false);
                             viewPane.SetActive(true);
-                            maskPanel.SetActive(true);
+                            viewPane.GetComponent<CanvasRenderer>().SetAlpha(0);
                             CameraLink.syncView(Camera.main, topCam);
                             topCam.GetComponent<CameraLink>().enabled = false;
                             //determine where the start touch panel should be
@@ -174,21 +196,22 @@ public class SnapBackCam : MonoBehaviour {
                             touchStartPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y, 0);
                             //Then finally convert to overlay space
                             Vector3 vpSpace = topCam.ScreenToViewportPoint(touchStartPosPanel.transform.position);
-                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width), (viewPane.GetComponent<RectTransform>().rect.height));                        
-                            touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x/2, (vpSpace.y * olWH.y) - olWH.y/2);
+                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width), (viewPane.GetComponent<RectTransform>().rect.height));
+                            touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x / 2, (vpSpace.y * olWH.y) - olWH.y / 2);
 
                             touchStartPosPanel.SetActive(true);
 
 
                         }
                         else
-                        {                            
-                            if (Time.time - stationary_time > 1) {
+                        {
+                            if (Time.time - stationary_time > 1)
+                            {
 
-                                
-                                if(viewPane.activeSelf)
-                                    viewPane.GetComponent<ViewPaneTexture>().fadeTexture(0, Rate * 3);
-                                    
+
+                                //if (viewPane.activeSelf)
+                                  //  viewPane.GetComponent<ViewPaneTexture>().fadeTexture(0, Rate * 12);
+
                                 //CameraLink.syncCam(Camera.main, topCam);
 
                                 // determine where the start touch panel should be
@@ -206,7 +229,7 @@ public class SnapBackCam : MonoBehaviour {
                             }
                             if (Time.time - stationary_time > 3)
                                 endSphere.SetActive(false);
-                                //viewPane.SetActive(false);
+                            //viewPane.SetActive(false);
                         }
                     }
 

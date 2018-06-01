@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class ViewPaneTexture : MonoBehaviour {
     
-    public bool isFading;
-    public float passiveAlpha;
+    public bool isFadingOut;
+    public bool isFadingIn;
+    public float passiveAlpha = 0.95f;
 
     // Use this for initialization
     private void OnEnable()
@@ -15,22 +16,23 @@ public class ViewPaneTexture : MonoBehaviour {
     }
 
     void Start () {
-        passiveAlpha = 0.78f;//GetComponent<CanvasRenderer>().GetAlpha();
+        //passiveAlpha = 0.78f;//GetComponent<CanvasRenderer>().GetAlpha();
     }
     
     public void fadeTexture(float fadeTo, float Rate)
     {
-        if (!isFading)
+        if (!isFadingOut)
         {
+            isFadingIn = isFadingOut = false;
             StopAllCoroutines();
-            StartCoroutine(fadeTex(fadeTo, Rate));
+            StartCoroutine(fadeOutTex(fadeTo, Rate));
         }
         //return fadeTo;
     }
 
-    private IEnumerator fadeTex(float fadeTo, float Rate)
+    private IEnumerator fadeOutTex(float fadeTo, float Rate)
     {
-        isFading = true;
+        isFadingOut = true;
         float startA = GetComponent<CanvasRenderer>().GetAlpha();
         float step = (startA - fadeTo) * Rate;
         //Debug.Log("Rate: " + Rate + "Step: " + step);
@@ -39,15 +41,32 @@ public class ViewPaneTexture : MonoBehaviour {
             GetComponent<CanvasRenderer>().SetAlpha(i);
             yield return i;
         }
-        isFading = false;
+        isFadingOut = false;
 
     }
 
-    public void fadeIn()
+    private IEnumerator fadeInTex(float fadeTo, float Rate)
     {
-        StopAllCoroutines();
-        isFading = false;
-        GetComponent<CanvasRenderer>().SetAlpha(passiveAlpha);
+        isFadingIn = true;
+        float startA = GetComponent<CanvasRenderer>().GetAlpha();
+        float step = (fadeTo - startA) * Rate;
+        for (float i = startA; i < fadeTo; i += step)
+        {
+            GetComponent<CanvasRenderer>().SetAlpha(i);
+            yield return i;
+        }
+        isFadingIn = false;
+    }
+
+    public void fadeIn(float Rate)
+    {
+        if (!isFadingIn)
+        {
+
+            isFadingIn = isFadingOut = false;
+            StopAllCoroutines();
+            StartCoroutine(fadeInTex(passiveAlpha, Rate));
+        }
     }
 
 	// Update is called once per frame

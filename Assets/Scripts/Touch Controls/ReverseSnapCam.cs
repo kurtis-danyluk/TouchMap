@@ -92,7 +92,7 @@ public class ReverseSnapCam : MonoBehaviour {
                             if (Time.time - move_time >= 0.2)
                             {
                                 viewPane.SetActive(true);
-                                viewPane.GetComponent<ViewPaneTexture>().fadeIn();
+                                viewPane.GetComponent<ViewPaneTexture>().fadeIn((1f/5f));
                             }
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);

@@ -81,7 +81,7 @@ public class TouchCamera : MonoBehaviour {
 			oldTouchPositions[1] = null;
 		}
 		else if (Input.touchCount == 1) {
-            if (!SnapBackCam.isActive && !ReverseSnapCam.isActive && !TouchController.isActive && !LookFromAt.isActive)
+            if (!SnapBackCam.isActive && !ReverseSnapCam.isActive && !TouchController.isActive && !LookFromAt.isActive && !LookAtFrom.isActive && !TransitionalCam.isActive)
             {
                 if (oldTouchPositions[0] == null || oldTouchPositions[1] != null)
                 {

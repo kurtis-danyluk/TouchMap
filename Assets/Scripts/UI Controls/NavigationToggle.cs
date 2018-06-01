@@ -7,11 +7,12 @@ public class NavigationToggle : MonoBehaviour {
 
     Dropdown m_Drowdown;
 
-    public TouchController lookFromAt; //0
+    public LookAtFrom lookFromAt; //0
     public LookFromAt lookAtFrom; //1
     public SnapBackCam snapCam; //2
     public ReverseSnapCam revSnapCam; //3
     public TouchCamera dragZoom; //4
+    public TransitionalCam tranCam; //5
     public SnapEgoCentricCam egoCam; //9
 
     // Use this for initialization
@@ -30,6 +31,7 @@ public class NavigationToggle : MonoBehaviour {
         dragZoom.enabled = false;
         revSnapCam.enabled = false;
         egoCam.enabled = false;
+        tranCam.enabled = false;
 
         switch (change.value){
             case 0:
@@ -48,22 +50,29 @@ public class NavigationToggle : MonoBehaviour {
                 dragZoom.enabled = true;
                 break;
             case 5:
+                tranCam.enabled = true;
+                break;
+            case 6:
                 snapCam.enabled = true;
                 dragZoom.enabled = true;
                 break;
-            case 6:
+            case 7:
                 dragZoom.enabled = true;
                 revSnapCam.enabled = true;
                 break;
-            case 7:
-                lookFromAt.enabled = true;
-                dragZoom.enabled = true;
-                break;
             case 8:
-                lookAtFrom.enabled = true;
+                tranCam.enabled = true;
                 dragZoom.enabled = true;
                 break;
             case 9:
+                lookFromAt.enabled = true;
+                dragZoom.enabled = true;
+                break;
+            case 10:
+                lookAtFrom.enabled = true;
+                dragZoom.enabled = true;
+                break;
+            case 11:
                 egoCam.enabled = true;
                 break;
         }

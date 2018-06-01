@@ -38,10 +38,12 @@ public class TouchController : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 
-        LookAtFrom();
+        //LookAtFrom();
             
     }
 
+    //Functionailty moved to its own script. Currently keptfor backup/legacy
+    /*
     public void LookAtFrom()
     {
 
@@ -56,15 +58,7 @@ public class TouchController : MonoBehaviour {
                     
                     if (t.phase == TouchPhase.Began)
                     {
-                        //Moved to long touchs
-                        /*
-                        startScreenTouch = t.position;
-                        startTouch = hit.point + new Vector3(0, 2, 0);
-                        startSphere.transform.position = hit.point;
-                        startSphere.SetActive(true);
-                        if (coroutine != null)
-                            StopCoroutine(coroutine);
-                       */
+                     
 
                     }
                     else if(t.phase == TouchPhase.Moved)
@@ -128,7 +122,7 @@ public class TouchController : MonoBehaviour {
                     }
 
                 }
-    }
+    } */
 
     public static IEnumerator OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate, float fov = -1)
     {
@@ -141,13 +135,22 @@ public class TouchController : MonoBehaviour {
         //instance.StartCoroutine(OrientCamera(cam, location, endA, rate, fov));
         //return this;
         
-        //Keep this awhile incase there is any bugs in conversion
         
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
-        float startF = cam.fieldOfView;
-        float endF = fov == -1 ? startF : fov;
 
+        float startF;
+        float endF;
+        if (!cam.orthographic)
+        {
+            startF = cam.fieldOfView;
+            endF = fov == -1 ? startF : fov;
+        }
+        else
+        {
+            startF = cam.orthographicSize;
+            endF = fov == -1 ? startF : fov;
+        }
 
         float startTime = Time.time;
         //We assume the scene 'should' be at 60fps.  and lock orient camera to that assumption
@@ -161,20 +164,18 @@ public class TouchController : MonoBehaviour {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
             cam.transform.rotation = Quaternion.Lerp(startA, endA, j);
-            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
+
+            if (!cam.orthographic)
+            {
+                cam.fieldOfView = Mathf.Lerp(startF, endF, j);
+            }
+            else
+            {
+                //cam.orthographicSize = Mathf.Lerp(startF, endF, j);
+            }
 
             yield return null;
         } while (Time.time < endTime);
-        /*
-        for (float i = 0; i <= 1; i += rate)
-        {
-            float j = smoothstep(0, 1, i);
-            cam.transform.position = Vector3.Lerp(startP, location, j);
-            cam.transform.rotation = Quaternion.Lerp(startA, endA, j);
-            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
-
-            yield return null;
-        }*/
 
     }
 
@@ -183,23 +184,22 @@ public class TouchController : MonoBehaviour {
         Vector3 startP = cam.transform.position;
         Quaternion startA = cam.transform.rotation;
 
-        float startF = cam.fieldOfView;
-        float endF = fov == -1 ? startF : fov;
-
+        float startF;
+        float endF;
+        if (!cam.orthographic)
+        {
+            startF = cam.fieldOfView;
+            endF = fov == -1 ? startF : fov;
+        }
+        else
+        {
+            startF = cam.orthographicSize;
+            endF = fov == -1 ? startF : fov;
+        }
         float startTime = Time.time;
         //We assume the scene 'should' be at 60fps.  and lock orient camera to that assumption
         float length = 60 * rate;
         float endTime = startTime + length;
-        /*
-        for (float i = 0; i <= 1; i += rate)
-        {
-            float j = smoothstep(0, 1, i);
-            cam.transform.position = Vector3.Lerp(startP, location, j);
-            cam.transform.rotation = Quaternion.Lerp(startA, lookTo, j);
-            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
-
-            yield return null;
-        }*/
 
         do
         {
@@ -208,8 +208,14 @@ public class TouchController : MonoBehaviour {
             float j = smoothstep(0, 1, i);
             cam.transform.position = Vector3.Lerp(startP, location, j);
             cam.transform.rotation = Quaternion.Lerp(startA, lookTo, j);
-            cam.fieldOfView = Mathf.Lerp(startF, endF, j);
-
+            if (!cam.orthographic)
+            {
+                cam.fieldOfView = Mathf.Lerp(startF, endF, j);
+            }
+            else
+            {
+                //cam.orthographicSize = Mathf.Lerp(startF, endF, j);
+            }
             yield return null;
         } while (Time.time < endTime);
         
@@ -229,7 +235,14 @@ public class TouchController : MonoBehaviour {
         go.SetActive(false);
     }
 
+    public static Quaternion LookAngle(Vector3 sPoint, Vector3 ePoint)
+    {
+        temp.transform.position = sPoint;
+        temp.transform.LookAt(ePoint);
+        return temp.transform.rotation;
 
+
+    }
 
     //Using Smoothest step by Kyle McDonald
     public static float smoothstep(float edge0, float edge1, float x)
@@ -249,5 +262,7 @@ public class TouchController : MonoBehaviour {
             x = upperlimit;
         return x;
     }
+
+    
 
 }
