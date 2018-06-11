@@ -7,6 +7,9 @@ public class NavigationToggle : MonoBehaviour {
 
     Dropdown m_Drowdown;
 
+    List<MonoBehaviour> techs;
+
+
     public LookAtFrom lookFromAt; //0
     public LookFromAt lookAtFrom; //1
     public SnapBackCam snapCam; //2
@@ -15,16 +18,32 @@ public class NavigationToggle : MonoBehaviour {
     public TransitionalCam tranCam; //5
     public SnapEgoCentricCam egoCam; //9
 
+
     // Use this for initialization
     void Start () {
         m_Drowdown = GetComponent<Dropdown>();
         m_Drowdown.onValueChanged.AddListener(delegate { ChangeNavigationTool(m_Drowdown);});
+       
+        techs = new List<MonoBehaviour>();
+
+        techs.Add(lookFromAt); //0
+        techs.Add(snapCam); //1
+        techs.Add(tranCam); //2
+
+        techs.Add(lookAtFrom); //3
+        techs.Add(revSnapCam); //4
+
+        techs.Add(dragZoom); //5
+
+        techs.Add(egoCam); //6
+
 	}
 	
 	// Update is called once per frame
 
     public void ChangeNavigationTool(Dropdown change)
     {
+        /*
         lookFromAt.enabled = false;
         lookAtFrom.enabled = false;
         snapCam.enabled = false;
@@ -32,48 +51,51 @@ public class NavigationToggle : MonoBehaviour {
         revSnapCam.enabled = false;
         egoCam.enabled = false;
         tranCam.enabled = false;
+        */
+        foreach (MonoBehaviour m in techs)
+            m.enabled = false;
 
         switch (change.value){
             case 0:
-                lookFromAt.enabled = true;
+                techs[0].enabled = true;
+                techs[5].enabled = true;
                 break;
             case 1:
-                lookAtFrom.enabled = true;               
+                techs[1].enabled = true;
+                techs[5].enabled = true;
                 break;
             case 2:
-                snapCam.enabled = true;
+                techs[2].enabled = true;
+                techs[5].enabled = true;
                 break;
             case 3:
-                revSnapCam.enabled = true;
+                techs[0].enabled = true;
                 break;
             case 4:
-                dragZoom.enabled = true;
+                techs[1].enabled = true;
                 break;
             case 5:
-                tranCam.enabled = true;
+                techs[2].enabled = true;
                 break;
             case 6:
-                snapCam.enabled = true;
-                dragZoom.enabled = true;
+                techs[3].enabled = true;
+                techs[5].enabled = true;
                 break;
             case 7:
-                dragZoom.enabled = true;
-                revSnapCam.enabled = true;
+                techs[4].enabled = true;
+                techs[5].enabled = true;
                 break;
             case 8:
-                tranCam.enabled = true;
-                dragZoom.enabled = true;
+                techs[3].enabled = true;
                 break;
             case 9:
-                lookFromAt.enabled = true;
-                dragZoom.enabled = true;
+                techs[4].enabled = true;
                 break;
             case 10:
-                lookAtFrom.enabled = true;
-                dragZoom.enabled = true;
+                techs[5].enabled = true;
                 break;
             case 11:
-                egoCam.enabled = true;
+                techs[6].enabled = true;
                 break;
         }
 

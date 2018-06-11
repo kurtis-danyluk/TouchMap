@@ -142,8 +142,10 @@ public class SnapBackCam : MonoBehaviour {
                             topCam.transform.position = new Vector3(topCam.transform.position.x, 256, topCam.transform.position.z);
                             topCam.orthographicSize = 256;
                             cocounter++;
-                            StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.position - new Vector3(0,1,0), Rate * 0.3f));
-                            
+                            ResetCam.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f / 120f));
+
+                            //StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.position - new Vector3(0,1,0), Rate * 0.3f));
+
                         }
                     }
                     else if(t.phase == TouchPhase.Stationary)

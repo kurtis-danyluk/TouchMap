@@ -133,7 +133,7 @@ public class TransitionalCam : MonoBehaviour {
                                     Mathf.Lerp(startA.y, endV.y, i),
                                     Mathf.Lerp(startA.z, endV.z, i)
                                     );
-                                    */
+                                  */  
 
                             Camera.main.transform.position = Vector3.Lerp(startPos, endTouch + endViewOffset, jp);
                             Camera.main.transform.rotation = Quaternion.Lerp(startAngle, endView,(float)jr);
@@ -161,7 +161,8 @@ public class TransitionalCam : MonoBehaviour {
                             //ResetCam.resetCam(Camera.main);
                             topCam.transform.position = new Vector3(topCam.transform.position.x, 256, topCam.transform.position.z);
                             topCam.orthographicSize = 256;
-                            StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f/120f)));
+                            ResetCam.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f / 120f));
+                            //StartCoroutine(TouchController.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f/120f)));
 
                         }
                     }

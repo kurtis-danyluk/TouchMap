@@ -8,6 +8,8 @@ public class ResetCam : MonoBehaviour {
     public delegate void OnVariableChangeDelegate(Camera cam);
     public static event OnVariableChangeDelegate CameraReset;
 
+    const float Rate = (1f/120f);
+
     static public ResetCam instance;
     private void Start()
     {
@@ -28,6 +30,15 @@ public class ResetCam : MonoBehaviour {
                 CameraReset(cam);
         }
     }
+    public static void OrientCamera(Camera cam, Vector3 location, Vector3 lookTo, float rate = Rate, float fov = -1)
+    {
+        instance.StartCoroutine(TouchController.OrientCamera(cam, location, lookTo, rate, fov));
+    }
+    public static void OrientCamera(Camera cam, Vector3 location, Quaternion lookTo, float rate = Rate, float fov = -1, bool isTimeStepped = true)
+    {
+        instance.StartCoroutine(TouchController.OrientCamera(cam, location, lookTo, rate, fov));
+    }
+
 
     public void ResetCamWrapper()
     {
