@@ -113,7 +113,7 @@ public class SnapBackCam : MonoBehaviour {
 
                             if (cocounter == 0)
                             {
-                                coroutine = TouchController.OrientCamera(Camera.main, startTouch + startViewOffset, endTouch + endViewOffset, Rate);
+                                coroutine = TouchController.OrientCamera(Camera.main, startTouch + startViewOffset + ((startTouch - endTouch).normalized * 30), endTouch + endViewOffset, Rate);
                                 StartCoroutine(coroutine);
                                 cocounter++;
                             }
