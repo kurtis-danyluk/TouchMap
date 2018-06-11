@@ -137,9 +137,9 @@ public class TransitionalCam : MonoBehaviour {
                             
                             Camera.main.transform.position = Vector3.Lerp(startPos, startTouch + ((startTouch - endTouch).normalized * 30)/*endTouch + endViewOffset*/, jp);
 
-
-                            Camera.main.transform.rotation = Quaternion.Slerp(startAngle, endView,(float)jr);
-
+                            
+                            //Camera.main.transform.rotation = Quaternion.Slerp(startAngle, endView,(float)jr);
+                            Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, Quaternion.Slerp(startAngle, endView, (float)jr), 10);
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
