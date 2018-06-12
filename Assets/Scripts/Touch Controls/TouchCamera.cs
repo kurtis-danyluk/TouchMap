@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TouchCamera : MonoBehaviour {
     public Camera m_OrthographicCamera;
+    public Camera topCam;
     public Camera cam;
     private GameObject temp;
 
@@ -75,8 +76,11 @@ public class TouchCamera : MonoBehaviour {
     }
 
     void Update() {
-        
-		if (Input.touchCount == 0) {
+
+        isPitched = transform.eulerAngles.x > 89.9 && transform.eulerAngles.x < 90.1 ? false : true;
+
+
+        if (Input.touchCount == 0) {
 			oldTouchPositions[0] = null;
 			oldTouchPositions[1] = null;
 		}
@@ -135,6 +139,7 @@ public class TouchCamera : MonoBehaviour {
 				Vector2 newTouchVector = newTouchPositions[0] - newTouchPositions[1];
 				float newTouchDistance = newTouchVector.magnitude;
 
+
                 //If I'm not already rotating...
                 if (!(rotateMode || pitchMode))
                 {
@@ -172,6 +177,7 @@ public class TouchCamera : MonoBehaviour {
                 //If I'm not already zooming...
                 if (!( zoomMode || pitchMode))
                 {
+
                     //Handle Rotations
                     if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 15) || rotateMode)
                     {
@@ -261,6 +267,10 @@ public class TouchCamera : MonoBehaviour {
         if (cam == this.cam)
             isPitched = false;
     }
+    public void camReset()
+    {
+        isPitched = false;
+    }
 
     public void unpitchCam()
     {
@@ -272,7 +282,8 @@ public class TouchCamera : MonoBehaviour {
             //coroutine = TouchController.OrientCamera(this.GetComponent<Camera>(), transform.position, Quaternion.Euler(new Vector3(0, 1, 0)));
             //coroutine = pitchCam(transform, transform.eulerAngles, new Vector3(90f, 0, 0), Rate);
             //StartCoroutine(coroutine);
-            transform.eulerAngles = new Vector3(90f, 0, 0);
+            ResetCam.OrientCamera(Camera.main, topCam.transform.position, topCam.transform.rotation, (1f / 120f));
+            //transform.eulerAngles = new Vector3(90f, 0, 0);
             isPitched = false;
         }
     }

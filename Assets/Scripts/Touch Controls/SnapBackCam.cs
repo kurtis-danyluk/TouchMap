@@ -180,6 +180,7 @@ public class SnapBackCam : MonoBehaviour {
                             touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x/2, (vpSpace.y * olWH.y) - olWH.y/2);
 
                             touchStartPosPanel.SetActive(true);
+                            maskPanel.transform.position = touchStartPosPanel.transform.position;
 
 
                         }
