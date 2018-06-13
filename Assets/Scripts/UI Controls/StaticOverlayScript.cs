@@ -15,6 +15,10 @@ public class StaticOverlayScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = reference.transform.TransformPoint(setLocation);
+        //transform.position = reference.transform.TransformPoint(setLocation);
+        transform.localPosition =
+            new Vector3(-transform.parent.transform.localPosition.x,
+                        -transform.parent.transform.localPosition.y,
+                        -transform.parent.transform.localPosition.z);
 	}
 }
