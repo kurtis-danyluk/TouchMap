@@ -77,7 +77,7 @@ public class TouchCamera : MonoBehaviour {
 
     void Update() {
 
-        isPitched = transform.eulerAngles.x > 89.9 && transform.eulerAngles.x < 90.1 ? false : true;
+        isPitched = transform.eulerAngles.x == 90 ? false : true;
 
 
         if (Input.touchCount == 0) {
@@ -183,12 +183,10 @@ public class TouchCamera : MonoBehaviour {
                             transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
                         else
                         {
-                            temp.transform.rotation = transform.rotation;
-                            temp.transform.rotation.SetLookRotation(Vector3.down);
 
-                            temp.transform.localRotation *= Quaternion.Euler(new Vector3(0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f, 0));
+                            float angle = Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) * Mathf.Rad2Deg;
 
-                            transform.eulerAngles= new Vector3(transform.eulerAngles.x, temp.transform.localRotation.eulerAngles.y, transform.eulerAngles.z);
+                            transform.RotateAround(transform.position, Vector3.down, angle);
                         }
                         oldTouchVector = newTouchVector;
                         oldTouchDistance = newTouchDistance;
