@@ -541,7 +541,7 @@ public class collect_tiles : MonoBehaviour {
 
         try
         {
-            UnityEditor.AssetDatabase.Refresh();
+            //UnityEditor.AssetDatabase.Refresh();
         }
         catch(System.Exception e)
         {

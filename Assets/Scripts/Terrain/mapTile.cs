@@ -199,7 +199,7 @@ public class mapTile : MonoBehaviour {
         }
         try
         {
-            UnityEditor.AssetDatabase.Refresh();
+            //UnityEditor.AssetDatabase.Refresh();
             Terr.terrainData.splatPrototypes = nSplats;
         }
         catch (System.Exception e)
@@ -224,7 +224,7 @@ public class mapTile : MonoBehaviour {
 
         try
         {
-            UnityEditor.AssetDatabase.Refresh();
+            //UnityEditor.AssetDatabase.Refresh();
         }
         catch (System.Exception e)
         {

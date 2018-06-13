@@ -108,38 +108,49 @@ public class TransitionalCam : MonoBehaviour {
 
                             Vector3 startViewOffset = new Vector3();
                             Vector3 endViewOffset = new Vector3();
-
+                            /*
                             while (Physics.Linecast(startTouch + startViewOffset, endTouch + endViewOffset))
                             {
                                 startViewOffset += new Vector3(0, 0.1f, 0);
                                 endViewOffset += new Vector3(0, 0.01f, 0);
                             }
-
+                            */
                             float touchDist = Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position);
 
-                            startViewOffset += new Vector3(0, 0.1f * touchDist, 0);
+                            //startViewOffset += new Vector3(0, 0.1f * touchDist, 0);
 
+
+                            //Get how far along the interaction we are in linear terms
                             float i = touchDist / interactionMaxDistance;
+                            //Convert to a nonlinear for position
                             float jp = TouchController.smoothstep(0, 0.9f, i);
+                            //Convert to a different nonlinear for rotation
                             double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
+                            //Find the ground location
                             Physics.Raycast(startPos, Vector3.down, out hit);
-                            Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
-                            /*
-                            Vector3 startA = startAngle.eulerAngles;
-                            Vector3 endV = endView.eulerAngles;
-                            Camera.main.transform.eulerAngles =
-                                new Vector3(
-                                    Mathf.Lerp(startA.x, endV.x, i),
-                                    Mathf.Lerp(startA.y, endV.y, i),
-                                    Mathf.Lerp(startA.z, endV.z, i)
-                                    );
-                                  */  
-                            
-                            Camera.main.transform.position = Vector3.Lerp(startPos, startTouch + ((startTouch - endTouch).normalized * 30)/*endTouch + endViewOffset*/, jp);
+                            Vector3 finalLocation = /*startTouch*/ hit.point + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
 
-                            
-                            //Camera.main.transform.rotation = Quaternion.Slerp(startAngle, endView,(float)jr);
-                            Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, Quaternion.Slerp(startAngle, endView, (float)jr), 10);
+                            //Lerp from the starting location to the end location
+                            Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
+
+
+
+
+                            //Determine where we should be looking by the end of the interaction
+                            Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
+
+                            //Determine where we should be looking at the start of the interaction
+                            Vector3 startLookDir3 = new Vector3( endTouch.x - startTouch.x, 0, endTouch.z - startTouch.z).normalized;
+                            Debug.Log(startLookDir3);
+                            Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
+
+
+                            //Debug.Log(Camera.main.transform.up);
+
+
+
+                            Quaternion finalRot =  Quaternion.Slerp(startAngleAdjusted, endView,(float)jp);
+                            Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
