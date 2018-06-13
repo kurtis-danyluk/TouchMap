@@ -124,8 +124,9 @@ public class TransitionalCam : MonoBehaviour {
                             float i = touchDist / interactionMaxDistance;
                             //Convert to a nonlinear for position
                             float jp = TouchController.smoothstep(0, 0.9f, i);
-                            //Convert to a different nonlinear for rotation
-                            double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
+                            //Convert to a different nonlinear for rotation - use smoothstep frame for rotation with new rotation handling.
+                            //double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
+
                             //Find the ground location
                             Physics.Raycast(startPos, Vector3.down, out hit);
                             Vector3 finalLocation = /*startTouch*/ hit.point + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
@@ -133,23 +134,17 @@ public class TransitionalCam : MonoBehaviour {
                             //Lerp from the starting location to the end location
                             Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
 
-
-
-
                             //Determine where we should be looking by the end of the interaction
                             Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
 
                             //Determine where we should be looking at the start of the interaction
                             Vector3 startLookDir3 = new Vector3( endTouch.x - startTouch.x, 0, endTouch.z - startTouch.z).normalized;
-                            Debug.Log(startLookDir3);
                             Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
 
+                            //Slerp from our new adjusted starting angle to the end angle
+                            Quaternion finalRot =  Quaternion.Slerp(startAngleAdjusted, endView,jp);
 
-                            //Debug.Log(Camera.main.transform.up);
-
-
-
-                            Quaternion finalRot =  Quaternion.Slerp(startAngleAdjusted, endView,(float)jp);
+                            //Apply that slerp with max speed of 10
                             Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
                         }
                     }

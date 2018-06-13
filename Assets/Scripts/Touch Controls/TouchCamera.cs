@@ -95,9 +95,6 @@ public class TouchCamera : MonoBehaviour {
                 else
                 {
                     Vector2 newTouchPosition = Input.GetTouch(0).position;
-                    //temp.transform.position = transform.position;
-                    //temp.transform.eulerAngles = transform.eulerAngles;
-                    //temp.transform.eulerAngles =  new Vector3(90, temp.transform.eulerAngles.y, temp.transform.eulerAngles.z);
                     Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
                     Vector3 movement = new Vector3(offset.x * dragSpeed, offset.y * dragSpeed, 0);
 
@@ -184,6 +181,15 @@ public class TouchCamera : MonoBehaviour {
                         rotateMode = true;
                         if (!isPitched)
                             transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
+                        else
+                        {
+                            temp.transform.rotation = transform.rotation;
+                            temp.transform.rotation.SetLookRotation(Vector3.down);
+
+                            temp.transform.localRotation *= Quaternion.Euler(new Vector3(0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f, 0));
+
+                            transform.eulerAngles= new Vector3(transform.eulerAngles.x, temp.transform.localRotation.eulerAngles.y, transform.eulerAngles.z);
+                        }
                         oldTouchVector = newTouchVector;
                         oldTouchDistance = newTouchDistance;
                     }
