@@ -185,7 +185,8 @@ public class collect_tiles : MonoBehaviour {
                     File.Create(elvFilename);
 
                 File.WriteAllBytes(elvFilename, elv);
-                    File.WriteAllBytes(cache_dir + key, elv);
+                File.WriteAllBytes(cache_dir + key, elv);
+                new FileInfo(cache_dir + key).Attributes = FileAttributes.Temporary;
                     
                 }
                 catch (WebException e)
@@ -318,7 +319,8 @@ public class collect_tiles : MonoBehaviour {
             img = client.DownloadData(bQuery);
             File.WriteAllBytes(aerImageFilename, img);
             File.WriteAllBytes(cache_dir + key, img);
-             
+            new FileInfo(cache_dir + key).Attributes = FileAttributes.Temporary;
+
             return true;
         }
         catch (WebException e)
@@ -384,148 +386,6 @@ public class collect_tiles : MonoBehaviour {
 
     }
 
-    /*
-    void dlFile(int merc_lat, int merc_long, int zoom)
-    {
-        float latitude;
-        float longitude;
-
-        //Debug.Log(this.name + elvFilename);
-        inverse_mercator(out latitude, out longitude, zoom, merc_long, merc_lat);
-
-        string bQuery = "http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + tile_type + latitude.ToString() + "," + longitude.ToString() + "?zl=" + zoom.ToString() + "&o=xml&key=" + key;
-        string eQuery = "http://s3.amazonaws.com/elevation-tiles-prod/normal/" + zoom + "/" + merc_long.ToString() + "/" + merc_lat.ToString() + ".png";
-        Debug.Log(Terr.name + " " + eQuery);
-
-
-        try
-        {
-            //Debug.Log(elvFilename);
-            client.DownloadFile(eQuery, elvFilename);
-        }
-        catch (WebException e)
-        {
-            Debug.Log("Error Trying To get Elevation Data");
-            Debug.LogException(e);
-            Debug.Log("latitude:" + latitude + " " + merc_lat);
-            Debug.Log("Longitude:" + longitude + " " + merc_long);
-            Debug.Log("Zoom:" + zoom);
-            Debug.Log(eQuery);
-        }
-        try
-        {
-
-            string line = client.DownloadString(bQuery);
-            string[] lines = line.Split((new char[] { '<', '>' }));
-            foreach (string item in lines)
-            {
-                if (item.StartsWith("http"))
-                    ImageURL = item;
-            }
-
-            if (!ImageURL.Equals(oImageURL))
-            {
-                client.DownloadFile(ImageURL, aerImageFilename);
-                oImageURL = ImageURL;
-                image_changed = true;
-            }
-        }
-        catch (WebException e)
-        {
-            Debug.Log("Error Getting Image Data");
-            Debug.LogException(e);
-            Debug.Log(bQuery);
-        };
-
-
-    }
-    */
-
-    void LateUpdate() {
-        if (!isCenter && center_changed)
-        {
-
-            int x3, y3;
-            //mercator(center.latitude, center.longitude, zoom, out x3, out y3);
-            x3 = center.latX;
-            y3 = center.lonY;
-            latX = x3 + xpos;
-            lonY = y3 - ypos;
-
-            // Debug.Log(center.latitude + " " + center.longitude + " " + y3 + " " + x3);
-            inverse_mercator(out this.latitude, out this.longitude, zoom, x3 + xpos, y3 - ypos);
-            // Debug.Log(latitude + " " + longitude + " " + (y3 - ypos) + " " + (x3 + xpos));
-
-            if (olatitude != latitude || olongitude != longitude || ozoom != zoom)
-            {
-                //  dlElvFile(latitude, longitude, zoom);
-                //  dlImgFile(latitude, longitude, zoom);
-
-                dlElvFile(latX, lonY, zoom, elvFilename);
-                image_changed = dlImgFile(latX, lonY, zoom, aerImageFilename, texture_mode);
-                olatitude = latitude;
-                olongitude = longitude;
-                ozoom = zoom;
-
-                //dlFile(this.latitude, this.longitude, zoom);
-            }
-
-
-            if (File.Exists(elvFilename) && File.Exists(aerImageFilename) && image_changed)
-            {
-                formHeight(Terr, elvFilename);
-                changeTex();
-                image_changed = false;
-                //tex_swap = true;
-                //      Terr.terrainData.SetAlphamaps(0, 0, map);
-            }
-        }
-    }
-
-
-        // Update is called once per frame
-	void Update () {
-
-        if (isCenter)
-        {
-            center_changed = false;
-            int x3, y3;
-            mercator(center.latitude, center.longitude, zoom, out x3, out y3);
-            // Debug.Log(center.latitude + " " + center.longitude + " " + y3 + " " + x3);
-            inverse_mercator(out this.latitude, out this.longitude, zoom, x3 + xpos, y3 - ypos);
-            // Debug.Log(latitude + " " + longitude + " " + (y3 - ypos) + " " + (x3 + xpos));
-            latX = x3;
-            lonY = y3;        
-
-            if (olatitude != latitude || olongitude != longitude || ozoom != zoom)
-            {
-                center_changed = true;
-
-
-
-                //  dlElvFile(latitude, longitude, zoom);
-                //  dlImgFile(latitude, longitude, zoom);
-
-                dlElvFile(latX, lonY, zoom, elvFilename);
-                image_changed = dlImgFile(latX, lonY, zoom, aerImageFilename, texture_mode);
-
-                olatitude = latitude;
-                olongitude = longitude;
-                ozoom = zoom;
-
-                //dlFile(this.latitude, this.longitude, zoom);
-            }
-
-            if (File.Exists(elvFilename) && File.Exists(aerImageFilename) && image_changed)
-            {
-                formHeight(Terr, elvFilename);
-                changeTex();
-                image_changed = false;
-                //tex_swap = true;
-                //      Terr.terrainData.SetAlphamaps(0, 0, map);
-            }
-        }
-    }
 
     //All this does is refresh the asset database. The textures are meaningfully changed each time they're downloaded anyway
     private void changeTex()

@@ -179,13 +179,11 @@ public class TouchCamera : MonoBehaviour {
                     if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 15) || rotateMode)
                     {
                         rotateMode = true;
+                        float angle = Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) * Mathf.Rad2Deg;
                         if (!isPitched)
-                            transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) / 0.0174532924f));
+                            transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, angle));
                         else
                         {
-
-                            float angle = Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) * Mathf.Rad2Deg;
-
                             transform.RotateAround(transform.position, Vector3.down, angle);
                         }
                         oldTouchVector = newTouchVector;
