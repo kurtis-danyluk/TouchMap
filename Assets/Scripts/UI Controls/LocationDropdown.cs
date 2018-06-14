@@ -43,6 +43,12 @@ public class LocationDropdown : MonoBehaviour {
             case 5:
                 map.ChangeTile(36.2144f, -113.0565f, 13,'a', -2, -2); //Grand Canyon
                 break;
+            case 6:
+                map.ChangeTile(37.57f, -105.48f, 12, 'a', -2, -2); //Blanca Peak
+                break;
+            case 7:
+                map.ChangeTile(37.29f, -105.80f, 14); //Sierro del Ojito
+                break;
         }
     }
 
