@@ -18,6 +18,7 @@ public class SnapBackCam : MonoBehaviour {
     public GameObject touchEndPosPanel;
 
     public static bool isActive = false;
+    public static bool isEnabled;
 
     private float stationary_time;
     private float move_time;
@@ -35,13 +36,19 @@ public class SnapBackCam : MonoBehaviour {
         maskPanel.SetActive(false);
         touchStartPosPanel.SetActive(false);
         touchEndPosPanel.SetActive(false);
+        isEnabled = this.enabled;
     }
 
     private void OnEnable()
     {
         ResetCam.resetCam(Camera.main);
         ResetCam.resetCam(setCam);
+        isEnabled = true;
         
+    }
+    private void OnDisable()
+    {
+        isEnabled = false;
     }
 
 

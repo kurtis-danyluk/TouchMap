@@ -21,6 +21,8 @@ public class TransitionalCam : MonoBehaviour {
     private Quaternion startAngle;
 
     public static bool isActive = false;
+    public static bool isEnabled;
+
 
     private float stationary_time;
     private float move_time;
@@ -35,12 +37,14 @@ public class TransitionalCam : MonoBehaviour {
     {
         ResetCam.resetCam(Camera.main);
         dirIndicator.SetActive(true);
+        isEnabled = true;
     }
 
     private void OnDisable()
     {
         if(dirIndicator != null)
             dirIndicator.SetActive(false) ;
+        isEnabled = false;
     }
 
 
@@ -51,11 +55,13 @@ public class TransitionalCam : MonoBehaviour {
         touchStartPosPanel.SetActive(false);
         touchEndPosPanel.SetActive(false);
         endSphere.SetActive(false);
+        isEnabled = this.enabled;
     }
 
     // Update is called once per frame
     void Update()
     {
+       // if((!Camera.main.GetComponent<CameraState>().isPitched && !Camera.main.GetComponent<CameraState>().isRotated) || isActive)
         if (!EventSystem.current.IsPointerOverGameObject())
             if (Input.touchCount == 1)
                 foreach (Touch t in Input.touches)
@@ -128,8 +134,8 @@ public class TransitionalCam : MonoBehaviour {
                             //double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
 
                             //Find the ground location
-                            Physics.Raycast(startPos, Vector3.down, out hit);
-                            Vector3 finalLocation = /*startTouch*/ hit.point + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
+                            Physics.Raycast(startTouch, Vector3.down, out hit);
+                            Vector3 finalLocation = /*startTouch*/ hit.point +startViewOffset + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
 
                             //Lerp from the starting location to the end location
                             Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);

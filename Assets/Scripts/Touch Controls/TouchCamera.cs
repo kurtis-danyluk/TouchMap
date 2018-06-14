@@ -172,7 +172,7 @@ public class TouchCamera : MonoBehaviour {
                 }
 
                 //If I'm not already zooming...
-                if (!( zoomMode || pitchMode))
+                if (!( zoomMode || pitchMode) && !(TransitionalCam.isEnabled || SnapBackCam.isEnabled))
                 {
 
                     //Handle Rotations
@@ -192,7 +192,7 @@ public class TouchCamera : MonoBehaviour {
                 }
 
                 //If I'm not already rotating or zooming
-                if (!(zoomMode || rotateMode))
+                if (!(zoomMode || rotateMode) && !(TransitionalCam.isEnabled || SnapBackCam.isEnabled))
                 {
 
                     //Handle Pitches
