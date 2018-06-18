@@ -9,6 +9,9 @@ public class TrialChooser : MonoBehaviour {
     public Projector proj;
     Transform tran;
 
+    public Transform location1Indicator;
+    public Transform location2Indicator;
+
     //public Generate_Terrain terr;
 
     // Use this for initialization
@@ -30,10 +33,14 @@ public class TrialChooser : MonoBehaviour {
             case 0:
                 tran.position = new Vector3(212, 256, 288);
                 tran.eulerAngles = new Vector3(90, 0, 0);
+                location1Indicator.position = new Vector3(492.4f, 53f, 749.7f);
+                location2Indicator.position = new Vector3(364.4f, 62.1f, 632f);
                 break;
             case 1:
                 tran.position = new Vector3(747, 90, 120);
                 tran.eulerAngles = new Vector3(36, -131, 0);
+                location1Indicator.position = new Vector3(382.5f, 65.4f, 151f);
+                location2Indicator.position = new Vector3(772.5f, 58.3f, 79.3f);
                 break;
             case 2:
                 tran.position = new Vector3(641.3f, 64.3f, 430.7f);
