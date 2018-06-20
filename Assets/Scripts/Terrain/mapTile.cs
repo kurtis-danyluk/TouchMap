@@ -12,6 +12,26 @@ public class mapTile : MonoBehaviour {
     public bool hasChanged = false;
 
 
+    public delegate void OnVariableChangeDelegate(bool newVal);
+    public event OnVariableChangeDelegate OnTileLoad;
+    private bool i_isLoadingTile = false;
+    private bool isLoadingTile
+    {
+        get { return i_isLoadingTile; }
+        set
+        {
+            if (i_isLoadingTile == value)
+                return;
+            else
+            {
+                i_isLoadingTile = value;
+                if(OnTileLoad !=null)
+                    OnTileLoad(isLoadingTile);
+            }
+        }
+    }
+
+
     /// <summary>
     /// The terrain object associated with this tile
     /// </summary>
@@ -179,6 +199,8 @@ public class mapTile : MonoBehaviour {
 
     IEnumerator loadTile(int LOD = -1)
     {
+
+        isLoadingTile = true;
         //Grab a heightmap and throw it in our heights list
 
         //Grab a texture and throw it in our splats
@@ -306,6 +328,8 @@ public class mapTile : MonoBehaviour {
         float TerrHeight =  (maxHeight - minHeight) / mRes;
 
         Terr.terrainData.size = new Vector3(Terr.terrainData.size.x, TerrHeight, Terr.terrainData.size.z);
+
+        isLoadingTile = false;
 
     }
 

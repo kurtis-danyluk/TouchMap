@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class TrialChooser : MonoBehaviour {
 
     Dropdown m_Dropdown;
+
+
     Transform tran;
 
     public static bool blueIsAboveRed;
@@ -41,6 +43,8 @@ public class TrialChooser : MonoBehaviour {
         changeLoc(change.value);
     }
 
+
+
     private void changeLoc(int val)
     {
         Vector3 l1 = new Vector3();
@@ -50,7 +54,7 @@ public class TrialChooser : MonoBehaviour {
             case 0: //Canmore1    H
                 l1 = new Vector3(494.2f, 53f, 753.3f);
                 l2 = new Vector3(364.4f, 62.1f, 627.64f);
-
+                
                 break;
             case 1: //Canmore2  H
                 l1 = new Vector3(381.3f, 65.4f, 163.1f);
