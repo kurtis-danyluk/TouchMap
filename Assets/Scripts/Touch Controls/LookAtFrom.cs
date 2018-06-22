@@ -93,6 +93,7 @@ public class LookAtFrom : MonoBehaviour {
                             stationary_time = Time.time;
 
                         //Debug.Log("Stationary for "+  (Time.time - stationary_time));
+                        
                         if (!isActive && (Time.time - stationary_time) > 0.5f)
                         {
                             isActive = true;

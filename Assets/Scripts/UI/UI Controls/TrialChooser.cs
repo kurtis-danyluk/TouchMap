@@ -18,6 +18,34 @@ public class TrialChooser : MonoBehaviour {
     public Transform proj1Tran;
     public Transform proj2Tran;
 
+    public struct TrialPair
+    {
+        public Vector3 blue;
+        public Vector3 red;
+        public string locationName;
+        public char type;
+
+        public TrialPair(Vector3 x, Vector3 y, string loc, char t)
+        {
+            blue = x;
+            red = y;
+            locationName = loc;
+            type = t;
+        }
+
+    }
+
+    public readonly TrialPair[] trialPiars= {
+        new TrialPair(new Vector3(494.2f, 53f, 753.3f),     new Vector3(364.4f, 62.1f, 627.64f),    "Canmore",          'h'),    //0
+        new TrialPair(new Vector3(381.3f, 65.4f, 163.1f),   new Vector3(768.1f, 58.3f, 69f),        "Canmore",          'h'),    //1
+        new TrialPair(new Vector3(251.8f, 26.1f, 392.5f),   new Vector3(130.05f, 40.9f, 603.9f),    "Monte Vista",      's'),    //2
+        new TrialPair( new Vector3(269.4f, 0f, 429.6f),     new Vector3(369.7f, 137.8f, 596.1f),    "Everest",          'h'),    //3
+        new TrialPair(new Vector3(240.9f, 33.1f, 161.4f),   new Vector3(819.33f, 47.6f, 326.3f),    "Monument Valley",  's'),    //4
+        new TrialPair(new Vector3(619.63f, 0f, 537.1f),     new Vector3(840.5f, 98.4f, 527.6f),     "Mount Blanca",     'h'),    //5
+        new TrialPair(new Vector3(190.86f, 0f, 312.1f),     new Vector3(573.4f, 0f, 573.4f),        "Dover",            's'),    //6
+        new TrialPair(new Vector3(271.83f, 0f, 80.7f),      new Vector3(647.4f, 0f, 267.2f),        "Grand Canyon",     's')     //7
+    };
+
 
     //public Generate_Terrain terr;
 
@@ -49,45 +77,9 @@ public class TrialChooser : MonoBehaviour {
     {
         Vector3 l1 = new Vector3();
         Vector3 l2 = new Vector3();
-        switch (val)
-        {
-            case 0: //Canmore1    H
-                l1 = new Vector3(494.2f, 53f, 753.3f);
-                l2 = new Vector3(364.4f, 62.1f, 627.64f);
-                
-                break;
-            case 1: //Canmore2  H
-                l1 = new Vector3(381.3f, 65.4f, 163.1f);
-                l2 = new Vector3(768.1f, 58.3f, 69f);
-                break;
-            case 2: //MonteVista 1  S
-                l1 = new Vector3(251.8f, 26.1f, 392.5f);
-                l2 = new Vector3(130.05f, 40.9f, 603.9f);
-                break;
-            case 3: //Everest1  H
-                l1 = new Vector3(269.4f, 0f, 429.6f);
-                l2 = new Vector3(369.7f, 137.8f, 596.1f);
-                break;
-            case 4: //Monument Valley   S
 
-                l1 = new Vector3(240.9f, 33.1f, 161.4f);
-                l2 = new Vector3(819.33f, 47.6f, 326.3f);
-                break;
-            case 5: //Blanca Height H
-                l1 = new Vector3(619.63f, 0f, 537.1f);
-                l2 = new Vector3(840.5f, 98.4f, 527.6f);
-                break;
-            case 6: //Dover S
-                l1 = new Vector3(190.86f, 0f, 312.1f);
-                l2 = new Vector3(573.4f, 0f, 573.4f);
-                break;
-            case 7: //Grand Canyon S
-                l1 = new Vector3(271.83f, 0f, 80.7f);
-                l2 = new Vector3(647.4f, 0f, 267.2f);
-                break;
-
-        }
-
+        l1 = trialPiars[val].blue;
+        l2 = trialPiars[val].red;
 
         l1.y = Terrain.activeTerrain.SampleHeight(l1) + 1f;
         l2.y = Terrain.activeTerrain.SampleHeight(l2) + 1f;
