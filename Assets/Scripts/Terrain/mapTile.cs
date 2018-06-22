@@ -15,7 +15,7 @@ public class mapTile : MonoBehaviour {
     public delegate void OnVariableChangeDelegate(bool newVal);
     public event OnVariableChangeDelegate OnTileLoad;
     private bool i_isLoadingTile = false;
-    private bool isLoadingTile
+    public bool isLoadingTile
     {
         get { return i_isLoadingTile; }
         set
