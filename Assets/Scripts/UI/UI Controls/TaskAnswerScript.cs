@@ -85,6 +85,13 @@ public class TaskAnswerScript : MonoBehaviour {
             rButton.gameObject.SetActive(true);
             bButton.gameObject.SetActive(true);
         }
+        StartCoroutine(startNewTask(d.gameObject.GetComponent<TrialChooser>().locations.map));
+    }
+
+    private IEnumerator startNewTask(mapTile map)
+    {
+        yield return new WaitUntil(() => !map.isLoadingTile);
+
         time = Time.time;
     }
 

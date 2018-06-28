@@ -101,7 +101,7 @@ public class TrialChooser : MonoBehaviour {
         location1Indicator.position = l1;
         location2Indicator.position = l2;
 
-        blueCanSeeRed = Physics.Linecast(l1, l2);
+        blueCanSeeRed = !Physics.Linecast(l1, l2);
 
         l1.y = Terrain.activeTerrain.SampleHeight(l1) + 20f;
         l2.y = Terrain.activeTerrain.SampleHeight(l2) + 20f;
