@@ -94,7 +94,7 @@ public class LookAtFrom : MonoBehaviour {
 
                         //Debug.Log("Stationary for "+  (Time.time - stationary_time));
                         
-                        if (!isActive && (Time.time - stationary_time) > 0.5f)
+                        if (!isActive && (Time.time - stationary_time) > 0.4f)
                         {
                             isActive = true;
                             startScreenTouch = t.position;

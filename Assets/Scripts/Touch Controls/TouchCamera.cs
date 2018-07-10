@@ -9,7 +9,7 @@ public class TouchCamera : MonoBehaviour {
     public Camera cam;
     private GameObject temp;
 
-    private const float dragSpeed = 526;
+    private const float dragSpeed = 1.2f;//526;
     private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
     private static readonly float[] boundsZoom = new float[]{ 2, 512 };
@@ -96,7 +96,13 @@ public class TouchCamera : MonoBehaviour {
                 {
                     Vector2 newTouchPosition = Input.GetTouch(0).position;
                     Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
-                    Vector3 movement = new Vector3(offset.x * dragSpeed, offset.y * dragSpeed, 0);
+
+                    float avgCamHeight;
+
+                    float frustumHeight = 2.0f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                    float frustumWidth = frustumHeight * Camera.main.aspect;
+
+                    Vector3 movement = new Vector3(offset.x * frustumHeight*dragSpeed, offset.y *frustumWidth *dragSpeed, 0);
 
                     temp.transform.position = transform.position;
                     temp.transform.eulerAngles = new Vector3(90, transform.eulerAngles.y, transform.eulerAngles.z);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,8 +35,25 @@ public class LocationDropdown : MonoBehaviour {
         locationFunctionPairs.Add("Grand Canyon", () => map.ChangeTile(36.2144f, -113.0565f, 13, 'a', -2, -2));
         locationFunctionPairs.Add("Blanca Peak", () => map.ChangeTile(37.57f, -105.48f, 12, 'a', -2, -2));
         locationFunctionPairs.Add("Sierro del Ojito", () => map.ChangeTile(37.29f, -105.80f, 14));
+        locationFunctionPairs.Add("Mount Waialeale", () => map.ChangeTile(22.0707f, -159.4961f, 12, mXOffset:-2, mYOffset:-2));
+        locationFunctionPairs.Add("Mount Wutai", () => map.ChangeTile(36.0076f, 113.5963f, 13, mXOffset: -1, mYOffset: 1));
+        locationFunctionPairs.Add("Grotto Canyon 15", () => map.ChangeTile(51.0646f, -115.2033f, 15, mXOffset: -2, mYOffset: -2));
+        locationFunctionPairs.Add("Grotto Canyon 14", () => map.ChangeTile(51.0646f, -115.2033f, 14, mXOffset: -2, mYOffset: -2));
+        locationFunctionPairs.Add("Grotto Canyon 13", () => map.ChangeTile(51.0646f, -115.2033f, 13, mXOffset: -2, mYOffset: -2));
+        locationFunctionPairs.Add("Grotto Canyon 12", () => map.ChangeTile(51.0646f, -115.2033f, 12, mXOffset: -2, mYOffset: -2));
+
+        m_Dropdown.options = new List<Dropdown.OptionData>();
+        m_Dropdown.AddOptions(locationFunctionPairs.Keys.ToList());
+
+    }
 
 
+    public string currentListedLocation
+    {
+        get
+        {
+            return m_Dropdown.options[m_Dropdown.value].text;
+        }
     }
 
     private void Awake()
@@ -63,7 +81,8 @@ public class LocationDropdown : MonoBehaviour {
     {
         if (map == null)
             map = FindObjectOfType<mapTile>();
-
+        locationFunctionPairs[m_Dropdown.options[val].text]();
+        /*
 
         switch (val)
         {
@@ -99,7 +118,14 @@ public class LocationDropdown : MonoBehaviour {
                 locationFunctionPairs["Sierro del Ojito"]();
                 //map.ChangeTile(37.29f, -105.80f, 14); //Sierro del Ojito
                 break;
+            case 8:
+                locationFunctionPairs["Mount Waialeale"]();
+                break;
+            case 9:
+                locationFunctionPairs["Mount Wutai"]();
+                break;
         }
+        */
     }
 
 }

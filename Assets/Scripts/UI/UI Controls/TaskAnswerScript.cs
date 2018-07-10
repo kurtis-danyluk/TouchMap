@@ -11,8 +11,18 @@ public class TaskAnswerScript : MonoBehaviour {
     public Button nButton;
     public Text TaskText;
     public Text reportText;
+    public Text scoreText;
     public Dropdown taskDropdown;
 
+    public string taskName = "0: Canmore :h";
+    public string scoreFile = "ScoreFile.csv";
+
+    public string participantName;
+
+    private bool answerLock = false;
+
+    public int score = 0;
+    int count = 0;
     public float time;
 
 	// Use this for initialization
@@ -21,53 +31,74 @@ public class TaskAnswerScript : MonoBehaviour {
         bButton.onClick.AddListener(delegate { buttonClicked(rButton, 'b'); });
         yButton.onClick.AddListener(delegate { buttonClicked(rButton, 'y'); });
         nButton.onClick.AddListener(delegate { buttonClicked(rButton, 'n'); });
-        taskDropdown.onValueChanged.AddListener(delegate { newTask(taskDropdown); });
+        //taskDropdown.onValueChanged.AddListener(delegate { newTask(taskDropdown); });
+        TrialChooser.OnLocationChange += newTask;
+
+        
     }
 	
 
     void buttonClicked(Button b, char id)
     {
-        if(id == 'b' && TrialChooser.blueIsAboveRed)
+        if (!answerLock)
         {
-            reportText.text = "Correct";
-        }
-        else if(id == 'b' && !TrialChooser.blueIsAboveRed)
-        {
-            reportText.text = "Incorrect";
-        }
+            if (id == 'b' && TrialChooser.blueIsAboveRed)
+            {
+                reportText.text = "Correct";
+            }
+            else if (id == 'b' && !TrialChooser.blueIsAboveRed)
+            {
+                reportText.text = "Incorrect";
+            }
 
-        if (id == 'r' && !TrialChooser.blueIsAboveRed)
-        {
-            reportText.text = "Correct";
-        }
-        else if (id == 'r' && TrialChooser.blueIsAboveRed)
-        {
-            reportText.text = "Incorrect";
-        }
+            if (id == 'r' && !TrialChooser.blueIsAboveRed)
+            {
+                reportText.text = "Correct";
+            }
+            else if (id == 'r' && TrialChooser.blueIsAboveRed)
+            {
+                reportText.text = "Incorrect";
+            }
 
-        if (id == 'y' && TrialChooser.blueCanSeeRed)
-        {
-            reportText.text = "Correct";
-        }
-        else if (id == 'y' && !TrialChooser.blueCanSeeRed)
-        {
-            reportText.text = "Incorrect";
-        }
+            if (id == 'y' && TrialChooser.blueCanSeeRed)
+            {
+                reportText.text = "Correct";
+            }
+            else if (id == 'y' && !TrialChooser.blueCanSeeRed)
+            {
+                reportText.text = "Incorrect";
+            }
 
-        if (id == 'n' && !TrialChooser.blueCanSeeRed)
-        {
-            reportText.text = "Correct";
+            if (id == 'n' && !TrialChooser.blueCanSeeRed)
+            {
+                reportText.text = "Correct";
+            }
+            else if (id == 'n' && TrialChooser.blueCanSeeRed)
+            {
+                reportText.text = "Incorrect";
+            }
+
+            answerLock = true;
+            count++;
+            score += reportText.text == "Correct" ? 1 : 0;
+            scoreText.text = "Score: " + score.ToString();
+
+            string header = "Participant Name,Technique,Task Number,Task Location, Task Type, Block, Time, Value\n";
+            string format = "{0},{1},{2},{3},{4},{5},{6},{7}\n";
+
+            if (!System.IO.File.Exists(scoreFile))
+                System.IO.File.WriteAllText(scoreFile,header);
+            string[] task = taskName.Split(':');
+            string output = string.Format(format, participantName, NavigationToggle.getActiveTechniques()[0], task[0], task[1], task[2], count, (Time.time - time), reportText.text);
+            System.IO.File.AppendAllText(scoreFile, output);
         }
-        else if (id == 'n' && TrialChooser.blueCanSeeRed)
-        {
-            reportText.text = "Incorrect";
-        }
-        Debug.Log(Time.time - time);
+        //Debug.Log(Time.time - time);
     }
 
     void newTask(Dropdown d)
     {
         reportText.text = "";
+        taskName = d.options[d.value].text;
         if(d.gameObject.GetComponent<TrialChooser>().trialPiars[d.value].type == 's')
         {
             TaskText.text = "Can Blue See Red?";
@@ -93,6 +124,7 @@ public class TaskAnswerScript : MonoBehaviour {
         yield return new WaitUntil(() => !map.isLoadingTile);
 
         time = Time.time;
+        answerLock = false;
     }
 
 	// Update is called once per frame

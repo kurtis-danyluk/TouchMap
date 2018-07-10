@@ -7,20 +7,23 @@ public class NavigationToggle : MonoBehaviour {
 
     Dropdown m_Drowdown;
 
+    public static NavigationToggle instance;
+
     List<MonoBehaviour> techs;
 
 
-    public LookAtFrom lookFromAt; //0
-    public LookFromAt lookAtFrom; //1
-    public SnapBackCam snapCam; //2
-    public ReverseSnapCam revSnapCam; //3
-    public TouchCamera dragZoom; //4
-    public TransitionalCam tranCam; //5
-    public SnapEgoCentricCam egoCam; //9
+    public LookAtFrom lookFromAt; 
+    public LookFromAt lookAtFrom; 
+    public SnapBackCam snapCam; 
+    public ReverseSnapCam revSnapCam; 
+    public TouchCamera dragZoom; 
+    public TransitionalCam tranCam; 
+    public SnapEgoCentricCam egoCam; 
 
 
     // Use this for initialization
     void Start () {
+        instance = this;
         m_Drowdown = GetComponent<Dropdown>();
         m_Drowdown.onValueChanged.AddListener(delegate { ChangeNavigationTool(m_Drowdown);});
        
@@ -57,49 +60,40 @@ public class NavigationToggle : MonoBehaviour {
 
         switch (change.value){
             case 0:
-                techs[0].enabled = true;
                 techs[5].enabled = true;
                 break;
             case 1:
-                techs[1].enabled = true;
+                techs[0].enabled = true;
                 techs[5].enabled = true;
+
                 break;
             case 2:
-                techs[2].enabled = true;
+                techs[1].enabled = true;
                 techs[5].enabled = true;
+
                 break;
             case 3:
-                techs[0].enabled = true;
-                break;
-            case 4:
-                techs[1].enabled = true;
-                break;
-            case 5:
                 techs[2].enabled = true;
-                break;
-            case 6:
-                techs[3].enabled = true;
                 techs[5].enabled = true;
                 break;
-            case 7:
-                techs[4].enabled = true;
-                techs[5].enabled = true;
-                break;
-            case 8:
-                techs[3].enabled = true;
-                break;
-            case 9:
-                techs[4].enabled = true;
-                break;
-            case 10:
-                techs[5].enabled = true;
-                break;
-            case 11:
-                techs[6].enabled = true;
-                break;
+
         }
 
        
+
+    }
+
+    public static List<string> getActiveTechniques()
+    {
+        List<string> l = new List<string>();
+        foreach(MonoBehaviour m in instance.techs)
+        {
+            if (m.enabled)
+            {
+                l.Add(m.GetType().ToString());
+            }
+        }
+        return l;
 
     }
 

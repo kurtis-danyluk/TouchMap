@@ -186,7 +186,7 @@ public class TransitionalCam : MonoBehaviour {
                         if (stationary_time == 0)
                             stationary_time = Time.time;
 
-                        if (isActive == false && (Time.time - stationary_time) > 1f)
+                        if (isActive == false && (Time.time - stationary_time) > 0.4f)
                         {
                             Vector3 worldP = Camera.main.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 1200));
                             Vector3 dir = (worldP - Camera.main.transform.position).normalized;

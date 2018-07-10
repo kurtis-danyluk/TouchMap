@@ -197,7 +197,7 @@ public class mapTile : MonoBehaviour {
 
     }
 
-    IEnumerator loadTile(int LOD = -1)
+    IEnumerator loadTile(int LOD = -1, bool hasSeaFloor = false)
     {
 
         isLoadingTile = true;
@@ -284,10 +284,17 @@ public class mapTile : MonoBehaviour {
                     float heightID = (1 - heightArrays[i][j, k]) * 255;
                     float qHeight = collect_tiles.quantized_height((int)heightID);
 
+                    if (qHeight < 0 && !hasSeaFloor)
+                        qHeight = 0f;
+
                     if (qHeight > maxHeight)
                         maxHeight = qHeight;
                     if (qHeight < minHeight)
                         minHeight = qHeight;
+
+
+
+
 
                     heightM[j + ((i % detail) * 256), k + ((i / detail) * 256)] = qHeight;
                 }
