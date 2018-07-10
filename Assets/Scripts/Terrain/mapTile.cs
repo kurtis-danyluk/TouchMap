@@ -32,6 +32,8 @@ public class mapTile : MonoBehaviour {
     }
 
 
+    public string location = "";
+
     /// <summary>
     /// The terrain object associated with this tile
     /// </summary>
@@ -368,8 +370,9 @@ public class mapTile : MonoBehaviour {
         hasChanged = true;
     }
 
-    public void ChangeTile(float lat, float lon, int zoom, char mode = 'a', int mXOffset = 0, int mYOffset = 0, int LOD = -1)
+    public void ChangeTile(float lat, float lon, int zoom, char mode = 'a', int mXOffset = 0, int mYOffset = 0, int LOD = -1, string location = "Unknown")
     {
+        this.location = location;
         this.zoom = zoom;
         tileType = mode;
         collect_tiles.mercator(lat, lon, zoom, out mercX, out mercY);

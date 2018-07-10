@@ -1,3 +1,4 @@
+Projector 1: (240.9, 33.1, 161.4), Projector 2: (819.33, 47.6, 326.3), Locations: Monument Valley, Type: h
 Projector 1: (186.6, 60.0, 390.7), Projector 2: (128.0, 54.9, 479.5), Locations: Canmore, Type: h
 Projector 1: (494.2, 55.8, 753.3), Projector 2: (364.4, 64.3, 627.6), Locations: Canmore, Type: h
 Projector 1: (443.1, 51.6, 689.1), Projector 2: (412.6, 48.2, 891.4), Locations: Canmore, Type: h

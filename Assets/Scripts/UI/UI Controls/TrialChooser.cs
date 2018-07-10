@@ -67,13 +67,15 @@ public class TrialChooser : MonoBehaviour {
 
         trialPiars = loadTrials(trialFilename);
 
+
         List<string> options = new List<string>();
         options.Add("Select a Trial To Begin");
         int i = 0;
         foreach(TrialPair t in trialPiars)
         {
-            options.Add(++i + ": " + t.locationName + " :" + t.type);
+            options.Add(i++ + ": " + t.locationName + " :" + t.type);
         }
+        options.RemoveAt(1);
         m_Dropdown.options = new List<Dropdown.OptionData>();
         m_Dropdown.AddOptions(options);
 
@@ -153,7 +155,8 @@ public class TrialChooser : MonoBehaviour {
     {
         try
         {
-            locations.locationFunctionPairs[trialPiars[val].locationName].Invoke();
+            if(locations.currentStoredLocation != trialPiars[val].locationName)
+                locations.locationFunctionPairs[trialPiars[val].locationName].Invoke();
 
             StartCoroutine(setProjectors(val));
             OnLocationChange(m_Dropdown);
