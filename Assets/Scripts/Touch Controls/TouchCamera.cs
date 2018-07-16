@@ -155,7 +155,7 @@ public class TouchCamera : MonoBehaviour {
                     else
                         fingerRatio *= 1;//3;
 
-                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 20 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
+                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 30 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
                     {
                         zoomMode = true;
 
@@ -182,7 +182,7 @@ public class TouchCamera : MonoBehaviour {
                 {
 
                     //Handle Rotations
-                    if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 15) || rotateMode)
+                    if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 10) || rotateMode)
                     {
                         rotateMode = true;
                         float angle = Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) * Mathf.Rad2Deg;
