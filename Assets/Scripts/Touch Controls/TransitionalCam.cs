@@ -13,6 +13,7 @@ public class TransitionalCam : MonoBehaviour {
     public Camera topCam;
     public GameObject viewPane;
     public GameObject dirIndicator;
+    public GameObject dirBar;
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
     public Button lockButton;
@@ -40,7 +41,8 @@ public class TransitionalCam : MonoBehaviour {
     private void OnEnable()
     {
         ResetCam.resetCam(Camera.main);
-       // dirIndicator.SetActive(true);
+        dirIndicator.SetActive(true);
+        dirBar.SetActive(true);
         isEnabled = true;
     }
 
@@ -48,6 +50,8 @@ public class TransitionalCam : MonoBehaviour {
     {
         if(dirIndicator != null)
             dirIndicator.SetActive(false) ;
+
+        dirBar.SetActive(false);
         isEnabled = false;
     }
 

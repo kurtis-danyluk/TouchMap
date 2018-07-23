@@ -78,41 +78,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
                     {
                         if (isActive)
                         {
-                            float touchHeight =   t.position.y - touchStartPosPanel.transform.position.y; 
-                            Vector2 secondTouch = touchStartPosPanel.transform.position + new Vector3(0, touchHeight, 0);
-                            /*
-                            Vector2 overlayCoords = viewPane.GetComponent<RectTransform>().position;
-                            Vector3 touchInOverlay = t.position - overlayCoords;
-
-                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width / 2), (viewPane.GetComponent<RectTransform>().rect.height / 2));
-                            Vector2 touchPortCoords = new Vector3(((touchInOverlay.x / olWH.x) + 1.4f) / 2.8f, ((touchInOverlay.y / olWH.y) + 1.1f) / 2.2f);
-                            //Debug.Log(touchPortCoords);
-                            Vector3 worldP = topCam.ViewportToWorldPoint(new Vector3(touchPortCoords.x, touchPortCoords.y, topCam.transform.position.y));
-
-                            //Vector3 worldP = setCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 2000));
-                            Vector3 dir = (worldP - topCam.transform.position).normalized;
-                            RaycastHit hit;
-                            Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
-                            */
-                            RaycastHit hit;
-                            Vector3 worldP = topCam.ScreenToWorldPoint(new Vector3(secondTouch.x, secondTouch.y, 2000));
-                            Vector3 dir = worldP = topCam.transform.position.normalized;
-
-                            Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
-
-                            if (move_time == 0)
-                                move_time = Time.time;
-                            stationary_time = 0;
-                            endTouch = hit.point;
-                            endSphere.transform.position = hit.point;
-                            startSphere.SetActive(false);
-                            //endSphere.SetActive(true);
-                            if (Time.time - move_time >= 0.2)
-                            {
-
-                                viewPane.SetActive(true);
-                                //viewPane.GetComponent<ViewPaneTexture>().fadeIn((1f / 5f));
-                            }
+                           
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
 
@@ -121,29 +87,19 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             //Get how far along the interaction we are in linear terms
                             float i = touchDist / interactionMaxDistance;
                             //Convert to a nonlinear for position
-                            float jp = TouchController.smoothstep(0, 0.9f, i);
-                            //Convert to a different nonlinear for rotation - use smoothstep frame for rotation with new rotation handling.
-                            //double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
-
-                            //Find the ground location
-                            Physics.Raycast(startTouch, Vector3.down, out hit);
-                            Vector3 finalLocation = /*startTouch*/ hit.point+ ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
-
+                            float jp = TouchController.smoothstep(0, 1.0f, i);
                             //Lerp from the starting location to the end location
-                            Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
+                            Camera.main.transform.position = Vector3.Lerp(startPos, startTouch, jp);
 
                             //Determine where we should be looking by the end of the interaction
                             Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
-
-                            //Determine where we should be looking at the start of the interaction
-                            Vector3 startLookDir3 = new Vector3(endTouch.x - startTouch.x, 0, endTouch.z - startTouch.z).normalized;
-                            Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
+                            
 
                             //Slerp from our new adjusted starting angle to the end angle
-                            Quaternion finalRot = Quaternion.Slerp(startAngleAdjusted, endView, jp);
+                            Quaternion finalRot = Quaternion.Slerp(startAngle, endView, jp);
 
                             //Apply that slerp with max speed of 10
-                            Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
+                            Camera.main.transform.rotation = finalRot;//Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
@@ -193,24 +149,16 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             startPos = Camera.main.transform.position;
                             startAngle = Camera.main.transform.rotation;
                             startSphere.transform.position = hit.point;
-                            startSphere.SetActive(true);
-                            endSphere.SetActive(false);
-                            //viewPane.SetActive(true);
-                            //viewPane.GetComponent<CanvasRenderer>().SetAlpha(0);
-                            CameraLink.syncView(Camera.main, topCam);
-                            topCam.GetComponent<CameraLink>().enabled = false;
-                            //determine where the start touch panel should be
-                            //Startwith finding its position on the topcam screen
-                            touchStartPosPanel.transform.position = (topCam.WorldToScreenPoint(hit.point));
-                            //Then convert to UI space
-                            touchStartPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y, 0);
-                            //Then finally convert to overlay space
-                            Vector3 vpSpace = topCam.ScreenToViewportPoint(touchStartPosPanel.transform.position);
-                            Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width), (viewPane.GetComponent<RectTransform>().rect.height));
-                            touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x / 2, (vpSpace.y * olWH.y) - olWH.y / 2);
-
+                            touchStartPosPanel.transform.position = new Vector3(t.position.x, t.position.y, 0);
                             touchStartPosPanel.SetActive(true);
+                            startSphere.SetActive(true);
 
+                            worldP = Camera.main.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y + 400, 1200));
+                            dir = (worldP - Camera.main.transform.position).normalized;
+                            Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane);
+                            endSphere.transform.position = hit.point;
+                            endTouch = endSphere.transform.position + new Vector3(0, 2, 0);
+                            endSphere.SetActive(true);
 
                         }
                         else
@@ -218,17 +166,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             if (Time.time - stationary_time > 1)
                             {
 
-                                // determine where the start touch panel should be
-                                //Startwith finding its position on the topcam screen
-                                touchStartPosPanel.transform.position = (topCam.WorldToScreenPoint(startSphere.transform.position));
-                                //Then convert to UI space
-                                touchStartPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y, 0);
-                                //Then finally convert to overlay space
-                                Vector3 vpSpace = topCam.ScreenToViewportPoint(touchStartPosPanel.transform.position);
-                                Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width), (viewPane.GetComponent<RectTransform>().rect.height));
-                                touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x / 2, (vpSpace.y * olWH.y) - olWH.y / 2);
-
-
+    
 
                             }
                             if (Time.time - stationary_time > 3)
