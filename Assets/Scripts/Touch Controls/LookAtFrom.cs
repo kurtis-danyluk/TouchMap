@@ -70,7 +70,7 @@ public class LookAtFrom : MonoBehaviour {
                                 while (Physics.Linecast(startTouch, endTouch - new Vector3(0, 5, 0)))
                                 {
                                     startTouch += new Vector3(0, 0.1f, 0);
-                                    endTouch += new Vector3(0, 0.01f, 0);
+                                    endTouch += new Vector3(0, 0.05f, 0);
                                 }
                                 //set camera  a bit back so you can see your start point
 

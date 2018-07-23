@@ -153,9 +153,14 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             touchStartPosPanel.SetActive(true);
                             startSphere.SetActive(true);
 
-                            worldP = Camera.main.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y + 400, 1200));
-                            dir = (worldP - Camera.main.transform.position).normalized;
-                            Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane);
+                            float offset = 420;
+                            do
+                            {
+                                offset -= 20;
+                                worldP = Camera.main.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y + offset, 1200));
+                                dir = (worldP - Camera.main.transform.position).normalized;
+                            } while (!Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane));
+
                             endSphere.transform.position = hit.point;
                             endTouch = endSphere.transform.position + new Vector3(0, 2, 0);
                             endSphere.SetActive(true);
