@@ -10,6 +10,7 @@ public class TrialChooser : MonoBehaviour {
 
 
     public InputField inputField;
+    public Button nextButton;
     private readonly string trialFilename = "Trials.txt";
 
     Transform tran;
@@ -21,6 +22,8 @@ public class TrialChooser : MonoBehaviour {
     public Transform location2Indicator;
     public Transform proj1Tran;
     public Transform proj2Tran;
+
+    private int currentLocNumber;
 
     public LocationDropdown locations;
 
@@ -81,6 +84,8 @@ public class TrialChooser : MonoBehaviour {
 
 
         inputField.onEndEdit.AddListener(delegate { changeLoc(inputField.text); });
+        nextButton.onClick.AddListener(delegate { changeLoc(currentLocNumber + 1); });
+
 
        // OnLocationChange(m_Dropdown);
     }
@@ -157,6 +162,10 @@ public class TrialChooser : MonoBehaviour {
         {
             if(locations.currentStoredLocation != trialPiars[val].locationName)
                 locations.locationFunctionPairs[trialPiars[val].locationName].Invoke();
+
+            currentLocNumber = val;
+            inputField.text = val.ToString();
+            m_Dropdown.value = val;
 
             StartCoroutine(setProjectors(val));
             OnLocationChange(m_Dropdown);

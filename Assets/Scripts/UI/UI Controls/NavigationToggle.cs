@@ -18,7 +18,8 @@ public class NavigationToggle : MonoBehaviour {
     public ReverseSnapCam revSnapCam; 
     public TouchCamera dragZoom; 
     public TransitionalCam tranCam; 
-    public SnapEgoCentricCam egoCam; 
+    public SnapEgoCentricCam egoCam;
+    public TransitionalFixedRotation fixedTran;
 
 
     // Use this for initialization
@@ -39,6 +40,7 @@ public class NavigationToggle : MonoBehaviour {
         techs.Add(dragZoom); //5
 
         techs.Add(egoCam); //6
+        techs.Add(fixedTran); //7
 
 	}
 	
@@ -68,12 +70,12 @@ public class NavigationToggle : MonoBehaviour {
 
                 break;
             case 2:
-                techs[1].enabled = true;
+                techs[2].enabled = true;
                 techs[5].enabled = true;
 
                 break;
             case 3:
-                techs[2].enabled = true;
+                techs[7].enabled = true;
                 techs[5].enabled = true;
                 break;
 
