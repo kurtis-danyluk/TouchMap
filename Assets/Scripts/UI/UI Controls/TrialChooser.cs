@@ -129,14 +129,14 @@ public class TrialChooser : MonoBehaviour {
                 */
         //TrialGenerator.TwoHeightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 300, 0.05f, 0.09f, 0.5f, 0.0f);
 
-        TrialGenerator.TwoSightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 500, 4);
+        TrialGenerator.TwoSightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 500, 3);
         setProjectors(p1, p2);
     }
 
     string format = "Projector 1: {0}, Projector 2: {1}, Locations: {2}, Type: {3}\n";
     public void saveTrial()
     {
-        System.IO.File.AppendAllText("TrialsC.txt",string.Format(format, proj1Tran.position, proj2Tran.position, locations.currentStoredLocation, 'h'));
+        System.IO.File.AppendAllText("TrialsC.txt",string.Format(format, proj1Tran.position, proj2Tran.position, locations.currentStoredLocation, 's'));
     }
 
     private TrialPair[] loadTrials(string filename)
@@ -149,7 +149,10 @@ public class TrialChooser : MonoBehaviour {
 
         foreach(string s in lines)
         {
-            string [] l = s.Split(seperators, System.StringSplitOptions.RemoveEmptyEntries);
+            string t = s;
+            if (s.StartsWith("*"))
+                t = s.Remove(0, 1);
+            string [] l = t.Split(seperators, System.StringSplitOptions.RemoveEmptyEntries);
             trials.Add(new TrialPair(StringToVector3(l[0]), StringToVector3(l[1]), l[2], l[3][0]));
         }
         return trials.ToArray();
@@ -192,18 +195,18 @@ public class TrialChooser : MonoBehaviour {
         l1 = trialPiars[val].blue;
         l2 = trialPiars[val].red;
 
-        l1.y = Terrain.activeTerrain.SampleHeight(l1) + 0.5f;
-        l2.y = Terrain.activeTerrain.SampleHeight(l2) + 0.5f;
+        l1.y = Terrain.activeTerrain.SampleHeight(l1) + 1.5f;
+        l2.y = Terrain.activeTerrain.SampleHeight(l2) + 1.5f;
 
         location1Indicator.position = l1;
         location2Indicator.position = l2;
 
+        blueIsAboveRed = l1.y > l2.y;
         blueCanSeeRed = !Physics.Linecast(l1 + Vector3.up, l2 + Vector3.up);
 
         l1.y = Terrain.activeTerrain.SampleHeight(l1) + 20f;
         l2.y = Terrain.activeTerrain.SampleHeight(l2) + 20f;
 
-        blueIsAboveRed = l1.y > l2.y;
 
         proj1Tran.position = l1;
         proj2Tran.position = l2;

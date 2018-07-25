@@ -105,14 +105,20 @@ public class TrialGenerator : MonoBehaviour {
             sightDegree += Physics.Linecast(point1L, point2) ? 1 : 0;
             //LR
             sightDegree += Physics.Linecast(point1L, point2R) ? 1 : 0;
+            //CL
+            sightDegree += Physics.Linecast(point1, point2L) ? 1 : 0;
             //CC
             sightDegree += Physics.Linecast(point1, point2) ? 1 : 0;
             //CR
             sightDegree += Physics.Linecast(point1, point2R) ? 1 : 0;
+            //RL
+            sightDegree += Physics.Linecast(point1R, point2L) ? 1 : 0;
+            //RC
+            sightDegree += Physics.Linecast(point1R, point2) ? 1 : 0;
             //RR
             sightDegree += Physics.Linecast(point1R, point2R) ? 1 : 0;
 
-            if(sightDegree > 1 && sightDegree < 4)
+            if(sightDegree > 2 && sightDegree < 7)
                 break;
         }
 
