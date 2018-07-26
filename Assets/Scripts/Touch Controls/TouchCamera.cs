@@ -155,7 +155,7 @@ public class TouchCamera : MonoBehaviour {
                     else
                         fingerRatio *= 1;//3;
 
-                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 30 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
+                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 25 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
                     {
                         zoomMode = true;
 
@@ -208,10 +208,14 @@ public class TouchCamera : MonoBehaviour {
                     if (((oneDif > 5 &&  twoDif > 5) || (oneDif < -5 && twoDif < -5) && pitchMode) || ((oneDif > 20 && twoDif > 20) || (oneDif < -20 && twoDif < -20)))
                     {
                         pitchMode = true;
-
-                        float newPitch = Mathf.Clamp(transform.eulerAngles.x + avDif * pitchSpeed, 0, 90);
-                        isPitched = newPitch != 90 ? true : false;
-                        transform.rotation = Quaternion.Euler(new Vector3(newPitch, transform.eulerAngles.y, transform.eulerAngles.z));                   
+                        float newPitch;
+                        float workingAngle = transform.eulerAngles.x;
+                        workingAngle = workingAngle > 270 ? workingAngle - 360 : workingAngle;
+                        newPitch = Mathf.Clamp(workingAngle + (avDif * pitchSpeed), -89, 90);
+                        
+                        
+                        transform.rotation = Quaternion.Euler(new Vector3(newPitch, transform.eulerAngles.y, transform.eulerAngles.z));
+                        isPitched = newPitch != 90 ? true : false;                
                         oldTouchPositions[0] = newTouchPositions[0];
                         oldTouchPositions[1] = newTouchPositions[1];
                     }
