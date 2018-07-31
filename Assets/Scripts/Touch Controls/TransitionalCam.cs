@@ -149,7 +149,7 @@ public class TransitionalCam : MonoBehaviour {
                             }
 
                             Vector3 startViewOffset = new Vector3();
-                            Vector3 endViewOffset = new Vector3();
+                            //Vector3 endViewOffset = new Vector3();
                             /*
                             while (Physics.Linecast(startTouch + startViewOffset, endTouch + endViewOffset))
                             {
@@ -176,18 +176,22 @@ public class TransitionalCam : MonoBehaviour {
                             //Lerp from the starting location to the end location
                             Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
 
-                            //Determine where we should be looking by the end of the interaction
-                            Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
+                            //Set a deadzone on rotations
+                            if (Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position) > 80)
+                            {
+                                //Determine where we should be looking by the end of the interaction
+                                Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
 
-                            //Determine where we should be looking at the start of the interaction
-                            Vector3 startLookDir3 = new Vector3( endTouch.x - startTouch.x, 0, endTouch.z - startTouch.z).normalized;
-                            Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
+                                //Determine where we should be looking at the start of the interaction
+                                Vector3 startLookDir3 = new Vector3(endTouch.x - startTouch.x, 0, endTouch.z - startTouch.z).normalized;
+                                Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
 
-                            //Slerp from our new adjusted starting angle to the end angle
-                            Quaternion finalRot =  Quaternion.Slerp(startAngleAdjusted, endView,jp);
+                                //Slerp from our new adjusted starting angle to the end angle
+                                Quaternion finalRot = Quaternion.Slerp(startAngleAdjusted, endView, jp);
 
-                            //Apply that slerp with max speed of 10
-                            Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
+                                //Apply that slerp with max speed of 10
+                                Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
+                            }
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)
@@ -257,6 +261,9 @@ public class TransitionalCam : MonoBehaviour {
                                 Vector3 vpSpace = topCam.ScreenToViewportPoint(touchStartPosPanel.transform.position);
                                 Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width), (viewPane.GetComponent<RectTransform>().rect.height));
                                 touchStartPosPanel.transform.localPosition = new Vector3((vpSpace.x * olWH.x) - olWH.x / 2, (vpSpace.y * olWH.y) - olWH.y / 2);
+
+                                touchEndPosPanel.transform.position = touchStartPosPanel.transform.position + new Vector3(0,0.1f,0);
+                                //dirBar.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
 
                                 touchStartPosPanel.SetActive(true);
                                 lockButton.transform.position = touchStartPosPanel.transform.position + new Vector3(0, -40f, 0);

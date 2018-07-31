@@ -79,7 +79,10 @@ public class TransitionalFixedRotation : MonoBehaviour {
                         if (isActive)
                         {
                            
-                            touchEndPosPanel.transform.position = t.position;
+                            if(t.position.y > touchStartPosPanel.transform.position.y)
+                                touchEndPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x ,t.position.y, 0);
+                            else
+                                touchEndPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y + 0.1f, 0);
                             touchEndPosPanel.SetActive(true);
 
                             float touchDist = Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position);
@@ -87,7 +90,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             //Get how far along the interaction we are in linear terms
                             float i = touchDist / interactionMaxDistance;
                             //Convert to a nonlinear for position
-                            float jp = TouchController.smoothstep(0, 1.0f, i);
+                            float jp = TouchController.smoothstep(0.1f, 1.0f, i);
                             //Lerp from the starting location to the end location
                             Camera.main.transform.position = Vector3.Lerp(startPos, startTouch, jp);
 
@@ -115,7 +118,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             startSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
-
+                            dirIndicator.SetActive(false);
 
                             topCam.GetComponent<CameraLink>().enabled = true;
                             
@@ -151,7 +154,8 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             startSphere.transform.position = hit.point;
                             touchStartPosPanel.transform.position = new Vector3(t.position.x, t.position.y, 0);
                             touchStartPosPanel.SetActive(true);
-                            startSphere.SetActive(true);
+                            touchEndPosPanel.transform.position = touchStartPosPanel.transform.position;
+                            //startSphere.SetActive(true);
 
                             float offset = 420;
                             do
@@ -161,9 +165,11 @@ public class TransitionalFixedRotation : MonoBehaviour {
                                 dir = (worldP - Camera.main.transform.position).normalized;
                             } while (!Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane));
 
+                            dirIndicator.SetActive(true);
+
                             endSphere.transform.position = hit.point;
                             endTouch = endSphere.transform.position + new Vector3(0, 2, 0);
-                            endSphere.SetActive(true);
+                            //endSphere.SetActive(true);
 
                         }
                         else
