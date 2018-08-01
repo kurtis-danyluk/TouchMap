@@ -127,16 +127,16 @@ public class TrialChooser : MonoBehaviour {
                 Debug.Log("Blue is above red " + (bHr / iters) * 100 + "% of the time");
                 Debug.Log("Blue can see red " + (bSr/ iters) * 100 + "% of the time");
                 */
-        //TrialGenerator.TwoHeightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 300, 0.05f, 0.09f, 0.5f, 0.0f);
+        TrialGenerator.TwoHeightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 300, 0.05f, 0.09f, 0.5f, 0.0f);
 
-        TrialGenerator.TwoSightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 500, 3);
+        //TrialGenerator.TwoSightComparisons(out p1, out p2, Terrain.activeTerrain, 128, 964, 128, 964, 100, 500, 3);
         setProjectors(p1, p2);
     }
 
     string format = "Projector 1: {0}, Projector 2: {1}, Locations: {2}, Type: {3}\n";
     public void saveTrial()
     {
-        System.IO.File.AppendAllText("TrialsC.txt",string.Format(format, proj1Tran.position, proj2Tran.position, locations.currentStoredLocation, 's'));
+        System.IO.File.AppendAllText("TrialsC.txt",string.Format(format, proj1Tran.position, proj2Tran.position, locations.currentStoredLocation, 'h'));
     }
 
     private TrialPair[] loadTrials(string filename)
@@ -171,6 +171,7 @@ public class TrialChooser : MonoBehaviour {
             m_Dropdown.value = val;
 
             StartCoroutine(setProjectors(val));
+            ResetCam.resetCam();
             OnLocationChange(m_Dropdown);
         }
         catch (System.Exception e) { }
@@ -221,8 +222,8 @@ public class TrialChooser : MonoBehaviour {
         l1 = p1;
         l2 = p2;
 
-        l1.y = Terrain.activeTerrain.SampleHeight(l1) + 0.5f;
-        l2.y = Terrain.activeTerrain.SampleHeight(l2) + 0.5f;
+        l1.y = Terrain.activeTerrain.SampleHeight(l1) + 1.5f;
+        l2.y = Terrain.activeTerrain.SampleHeight(l2) + 1.5f;
 
         location1Indicator.position = l1;
         location2Indicator.position = l2;
