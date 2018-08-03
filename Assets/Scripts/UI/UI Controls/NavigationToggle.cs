@@ -78,6 +78,10 @@ public class NavigationToggle : MonoBehaviour {
                 techs[7].enabled = true;
                 techs[5].enabled = true;
                 break;
+            case 4:
+                techs[1].enabled = true;
+                techs[5].enabled = true;
+                break;
 
         }
 

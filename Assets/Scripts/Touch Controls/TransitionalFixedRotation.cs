@@ -16,7 +16,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
     public GameObject touchEndPosPanel;
     public Touch firstTouch;
 
-    private readonly float interactionMaxDistance = 400;
+    private readonly float interactionMaxDistance = 0.5f;
 
     private Vector3 startPos;
     private Quaternion startAngle;
@@ -85,8 +85,14 @@ public class TransitionalFixedRotation : MonoBehaviour {
                                 touchEndPosPanel.transform.position = new Vector3(touchStartPosPanel.transform.position.x, touchStartPosPanel.transform.position.y + 0.1f, 0);
                             touchEndPosPanel.SetActive(true);
 
-                            float touchDist = Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position);
 
+                            Vector3 startPosAdj = Camera.main.ScreenToViewportPoint(touchStartPosPanel.transform.position);
+                            startPosAdj.x = startPosAdj.x * Camera.main.aspect;
+
+                            Vector3 endPosAdj = Camera.main.ScreenToViewportPoint(touchEndPosPanel.transform.position);
+                            endPosAdj.x = endPosAdj.x * Camera.main.aspect;
+                            float touchDist = Vector3.Distance(startPosAdj, endPosAdj);
+                            
                             //Get how far along the interaction we are in linear terms
                             float i = touchDist / interactionMaxDistance;
                             //Convert to a nonlinear for position

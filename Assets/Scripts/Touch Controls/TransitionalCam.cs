@@ -20,7 +20,7 @@ public class TransitionalCam : MonoBehaviour {
     public Sprite lockImage;
     public Sprite unlockImage;
 
-    private readonly float interactionMaxDistance = 400;
+    private readonly float interactionMaxDistance = 0.5f;
 
     private Vector3 startPos;
     private Quaternion startAngle;
@@ -50,8 +50,8 @@ public class TransitionalCam : MonoBehaviour {
     {
         if(dirIndicator != null)
             dirIndicator.SetActive(false) ;
-
-        dirBar.SetActive(false);
+        if(dirBar != null)
+            dirBar.SetActive(false);
         isEnabled = false;
     }
 
@@ -149,19 +149,15 @@ public class TransitionalCam : MonoBehaviour {
                             }
 
                             Vector3 startViewOffset = new Vector3();
-                            //Vector3 endViewOffset = new Vector3();
-                            /*
-                            while (Physics.Linecast(startTouch + startViewOffset, endTouch + endViewOffset))
-                            {
-                                startViewOffset += new Vector3(0, 0.1f, 0);
-                                endViewOffset += new Vector3(0, 0.01f, 0);
-                            }
-                            */
-                            float touchDist = Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position);
 
-                            //startViewOffset += new Vector3(0, 0.1f * touchDist, 0);
+                            Vector3 startPosAdj = Camera.main.ScreenToViewportPoint(touchStartPosPanel.transform.position);
+                            startPosAdj.x = startPosAdj.x * Camera.main.aspect;
 
-
+                            Vector3 endPosAdj = Camera.main.ScreenToViewportPoint(touchEndPosPanel.transform.position);
+                            endPosAdj.x = endPosAdj.x * Camera.main.aspect;
+                            float touchDist = Vector3.Distance(startPosAdj, endPosAdj);
+                            
+                            
                             //Get how far along the interaction we are in linear terms
                             float i = touchDist / interactionMaxDistance;
                             //Convert to a nonlinear for position
@@ -171,13 +167,15 @@ public class TransitionalCam : MonoBehaviour {
 
                             //Find the ground location
                             Physics.Raycast(startTouch, Vector3.down, out hit);
-                            Vector3 finalLocation = /*startTouch*/ hit.point +startViewOffset + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
+                            Vector3 finalLocation =  hit.point +startViewOffset + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
 
                             //Lerp from the starting location to the end location
                             Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
 
                             //Set a deadzone on rotations
-                            if (Vector3.Distance(touchStartPosPanel.transform.position, touchEndPosPanel.transform.position) > 80)
+
+                            if (Vector3.Distance(Camera.main.ScreenToViewportPoint(touchStartPosPanel.transform.position),
+                                                 Camera.main.ScreenToViewportPoint(touchEndPosPanel.transform.position)) > 0.1f)
                             {
                                 //Determine where we should be looking by the end of the interaction
                                 Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
@@ -192,6 +190,10 @@ public class TransitionalCam : MonoBehaviour {
                                 //Apply that slerp with max speed of 10
                                 Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
                             }
+
+
+
+
                         }
                     }
                     else if (t.phase == TouchPhase.Ended)

@@ -16,6 +16,9 @@ public class TouchCamera : MonoBehaviour {
     private static readonly float[] boundsX = new float[] { 0, 1024 };
     private static readonly float[] boundsY = new float[] { 0, 1024 };
 
+    private static readonly float minEntranceRotation = 15;
+    private static readonly float minZoomRatio = 0.08f;
+
     private bool zoomMode = false;
     private bool rotateMode = false;
     private bool pitchMode = false;
@@ -54,8 +57,16 @@ public class TouchCamera : MonoBehaviour {
 		null,
 		null
 	};
+    Vector2?[] oldTouchPortPositions =
+    {
+        null,
+        null
+    };
+
 	Vector2 oldTouchVector;
+    Vector2 oldTouchPortVector;
 	float oldTouchDistance;
+    float oldTouchPortDistance;
 
     void Start()
     {
@@ -79,10 +90,13 @@ public class TouchCamera : MonoBehaviour {
 
         isPitched = transform.eulerAngles.x == 90 ? false : true;
 
+        Vector3 pos;
 
         if (Input.touchCount == 0) {
 			oldTouchPositions[0] = null;
 			oldTouchPositions[1] = null;
+            oldTouchPortPositions[0] = null;
+            oldTouchPortPositions[1] = null;
 		}
 		else if (Input.touchCount == 1) {
             if (!SnapBackCam.isActive && !ReverseSnapCam.isActive && !TouchController.isActive && !LookFromAt.isActive && !LookAtFrom.isActive && !TransitionalCam.isActive)
@@ -90,7 +104,9 @@ public class TouchCamera : MonoBehaviour {
                 if (oldTouchPositions[0] == null || oldTouchPositions[1] != null)
                 {
                     oldTouchPositions[0] = Input.GetTouch(0).position;
+                    oldTouchPortPositions[0] = cam.ScreenToViewportPoint((Vector3)oldTouchPositions[0]);
                     oldTouchPositions[1] = null;
+                    oldTouchPortPositions[1] = null;
                 }
                 else
                 {
@@ -112,7 +128,7 @@ public class TouchCamera : MonoBehaviour {
                     transform.position = temp.transform.position;
                     //transform.position += movement;//transform.TransformDirection(movement);
 
-                    Vector3 pos = transform.position;
+                    pos = transform.position;
                     pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
                     pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
                     pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
@@ -127,9 +143,16 @@ public class TouchCamera : MonoBehaviour {
 		else if (Input.touchCount == 2) {
 			if (oldTouchPositions[1] == null) {
 				oldTouchPositions[0] = Input.GetTouch(0).position;
-				oldTouchPositions[1] = Input.GetTouch(1).position;
-				oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                oldTouchPortPositions[0] = cam.ScreenToViewportPoint((Vector3)oldTouchPositions[0]);
+
+                oldTouchPositions[1] = Input.GetTouch(1).position;
+                oldTouchPortPositions[1] = cam.ScreenToViewportPoint((Vector3)oldTouchPositions[1]);
+
+                oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
 				oldTouchDistance = oldTouchVector.magnitude;
+                oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
+                oldTouchPortDistance = oldTouchPortVector.magnitude;
+               
                 zoomMode = rotateMode = pitchMode = false;
 			}
 			else {
@@ -142,38 +165,66 @@ public class TouchCamera : MonoBehaviour {
 				Vector2 newTouchVector = newTouchPositions[0] - newTouchPositions[1];
 				float newTouchDistance = newTouchVector.magnitude;
 
+                Vector2[] newTouchPortPositions =
+                {
+                    cam.ScreenToViewportPoint(newTouchPositions[0]),
+                    cam.ScreenToViewportPoint(newTouchPositions[1])
+                };
+                Vector2 newTouchPortVector = newTouchPortPositions[0] - newTouchPortPositions[1];
+                float newTouchPortDistance = newTouchPortVector.magnitude;
+
+                Vector2 touchAvg = (newTouchPositions[0] + newTouchPositions[1]) / 2;
+                
+                Vector3 avgWorldP = Camera.main.ScreenToWorldPoint(new Vector3(touchAvg.x, touchAvg.y, 1200));
+                Vector3 dir = (avgWorldP - Camera.main.transform.position).normalized;
+               
+
+                RaycastHit hit;
+
+
+                //bool hitTrue = Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane);
+                bool hitTrue = Physics.Raycast(cam.ScreenPointToRay(touchAvg), out hit, Camera.main.farClipPlane);
+
 
                 //If I'm not already rotating...
                 if (!(rotateMode || pitchMode))
                 {
                     //Handle Zooms
-                    bool hasGrown = (oldTouchDistance - newTouchDistance) > 0 ? true : false;
-                    float fingerRatio = (oldTouchDistance / newTouchDistance);
-
+                    bool hasGrown = (oldTouchPortDistance - newTouchPortDistance) > 0 ? true : false;
+                    float fingerRatio = (oldTouchPortDistance / newTouchPortDistance);
+                    
                     if (hasGrown)
-                        fingerRatio = (-1) * (/*1.0f / */fingerRatio);
-                    else
-                        fingerRatio *= 1;//3;
+                        fingerRatio = (-1) * fingerRatio;
+                    //else
+                      //  fingerRatio *= 1;//3;
 
-                    if (Mathf.Abs(oldTouchDistance - newTouchDistance) > 30 || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > 5))
+                    if (Mathf.Abs(oldTouchPortDistance - newTouchPortDistance) > minZoomRatio || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > minZoomRatio / 5))
                     {
                         zoomMode = true;
 
                         if (Mathf.Abs(fingerRatio) > 0.1)
-                            transform.position += transform.TransformDirection(new Vector3(0, 0, transform.position.y * fingerRatio * zoomSpeed * 0.05f)) ;
+                        {
+                            if (hitTrue)
+                            {
+                                Vector3 path = (hit.point - cam.transform.position);
+                                if (path.magnitude < 80.0f)
+                                    path = path.normalized * 80.0f;
+                                transform.position += path * (1 / fingerRatio) * 0.033f;
 
-                        Vector3 pos = transform.position;
-                        pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
-                        pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
-                        pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
-                        transform.position = pos;
+                            }
+                            else
+                                transform.position += (cam.transform.forward * cam.farClipPlane) * (1 / fingerRatio) * 0.033f;
+                            
+                            oldTouchPositions[0] = newTouchPositions[0];
+                            oldTouchPositions[1] = newTouchPositions[1];
+                            oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                            oldTouchDistance = oldTouchVector.magnitude;
 
-                        //Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView - fingerRatio * zoomSpeed, boundsZoom[0], boundsZoom[1]);
-
-                        oldTouchPositions[0] = newTouchPositions[0];
-                        oldTouchPositions[1] = newTouchPositions[1];
-                        oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
-                        oldTouchDistance = oldTouchVector.magnitude;
+                            oldTouchPortPositions[0] = newTouchPortPositions[0];
+                            oldTouchPortPositions[1] = newTouchPortPositions[1];
+                            oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
+                            oldTouchPortDistance = oldTouchPortVector.magnitude;
+                        }
                     }
                 }
 
@@ -182,29 +233,25 @@ public class TouchCamera : MonoBehaviour {
                 {
 
                     //Handle Rotations
-                    if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * 10) || rotateMode)
+                    if (Mathf.Abs(Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f))) > Mathf.Sin(Mathf.Deg2Rad * minEntranceRotation) || rotateMode)
                     {
                         float angle = Mathf.Asin(Mathf.Clamp((oldTouchVector.y * newTouchVector.x - oldTouchVector.x * newTouchVector.y) / oldTouchDistance / newTouchDistance, -1f, 1f)) * Mathf.Rad2Deg;
                         rotateMode = true;
-
-                        Vector2 touchAvg = (newTouchPositions[0] + newTouchPositions[1]) / 2;
-                        Vector3 avgWorldP= Camera.main.ScreenToWorldPoint(new Vector3(touchAvg.x, touchAvg.y, 1200));
-                        Vector3 dir = (avgWorldP - Camera.main.transform.position).normalized;
-
-                        RaycastHit hit;
-                        
-                        if(Physics.Raycast(Camera.main.transform.position + (dir * Camera.main.nearClipPlane), dir, out hit, Camera.main.farClipPlane))
+                             
+                        if(hitTrue)
                         {
                             transform.RotateAround(hit.point, Vector3.down, angle);
                         }
                         else
                         {
-                            if (!isPitched)
-                                transform.localRotation *= Quaternion.Euler(new Vector3(0, 0, angle));
+
+                            Vector3 rotatePoint;
+                            if(dir.y < 0)
+                                rotatePoint = cam.transform.position - (dir * (cam.transform.position.y / dir.y));
                             else
-                            {
-                                transform.RotateAround(transform.position, Vector3.down, angle);
-                            }
+                                rotatePoint = transform.position;
+                            transform.RotateAround(rotatePoint, Vector3.down, angle);
+                            
                         }
                         oldTouchVector = newTouchVector;
                         oldTouchDistance = newTouchDistance;
@@ -216,29 +263,49 @@ public class TouchCamera : MonoBehaviour {
                 {
 
                     //Handle Pitches
-                    float oneDif = oldTouchPositions[0].Value.y - newTouchPositions[0].y;
-                    float twoDif = oldTouchPositions[1].Value.y - newTouchPositions[1].y;
+                    float oneDif = oldTouchPortPositions[0].Value.y - newTouchPortPositions[0].y;
+                    float twoDif = oldTouchPortPositions[1].Value.y - newTouchPortPositions[1].y;
                     float avDif = (oneDif + twoDif) / 2;
-                    if (((oneDif > 5 &&  twoDif > 5) || (oneDif < -5 && twoDif < -5) && pitchMode) || ((oneDif > 20 && twoDif > 20) || (oneDif < -20 && twoDif < -20)))
+                    
+                    if (((oneDif > 0.01f &&  twoDif > 0.01f) || (oneDif < -0.01f && twoDif < -0.01f) && pitchMode) || ((oneDif > 0.05f && twoDif > 0.05f) || (oneDif < -0.05f && twoDif < -0.05f)))
                     {
+                        Vector3 pitchPoint = hit.point;
+                        
                         pitchMode = true;
+                        
+
+
                         float newPitch;
-                        float workingAngle = transform.eulerAngles.x;
-                        workingAngle = workingAngle > 270 ? workingAngle - 360 : workingAngle;
-                        newPitch = Mathf.Clamp(workingAngle + (avDif * pitchSpeed), -89, 90);
+                        //float workingAngle = transform.eulerAngles.x;
+                        //workingAngle = workingAngle > 270 ? workingAngle - 360 : workingAngle;
+
+
+                        //  newPitch = Mathf.Clamp(workingAngle + (avDif * 180), -89, 90);
+                        newPitch = avDif * 180;
+                        if (hitTrue)
+                        {
+                            transform.RotateAround(pitchPoint, cam.transform.right, newPitch);
+                        }
+                        //transform.rotation = Quaternion.Euler(new Vector3(newPitch, transform.eulerAngles.y, transform.eulerAngles.z));
+
+                        isPitched = newPitch != 90 ? true : false; 
                         
-                        
-                        transform.rotation = Quaternion.Euler(new Vector3(newPitch, transform.eulerAngles.y, transform.eulerAngles.z));
-                        isPitched = newPitch != 90 ? true : false;                
                         oldTouchPositions[0] = newTouchPositions[0];
                         oldTouchPositions[1] = newTouchPositions[1];
+                        oldTouchPortPositions[0] = newTouchPortPositions[0];
+                        oldTouchPortPositions[1] = newTouchPortPositions[1];
                     }
                    
 
                 }
 
             }
-		}
+            pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
+            pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
+            pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
+            transform.position = pos;
+        }
 	}
     private IEnumerator coroutine;
    

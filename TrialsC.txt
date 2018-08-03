@@ -1,0 +1,16 @@
+Projector 1: (901.5, 36.0, 151.2), Projector 2: (964.0, 40.5, 293.4), Locations: Canmore, Type: h
+Projector 1: (229.7, 69.9, 711.4), Projector 2: (128.0, 59.8, 820.7), Locations: Canmore, Type: s
+Projector 1: (612.1, 49.4, 159.1), Projector 2: (806.9, 44.5, 268.4), Locations: Canmore, Type: h
+Projector 1: (812.6, 34.1, 466.8), Projector 2: (583.8, 36.7, 764.9), Locations: Canmore, Type: s
+Projector 1: (730.3, 38.1, 653.5), Projector 2: (877.6, 45.0, 782.6), Locations: Mount Wutai, Type: h
+Projector 1: (365.7, 89.4, 603.2), Projector 2: (317.4, 97.6, 234.1), Locations: Mount Wutai, Type: s
+Projector 1: (933.3, 60.1, 195.2), Projector 2: (953.0, 53.6, 379.2), Locations: Mount Wutai, Type: h
+Projector 1: (667.3, 57.5, 681.5), Projector 2: (733.3, 38.1, 483.0), Locations: Mount Wutai, Type: s
+Projector 1: (657.7, 43.3, 404.7), Projector 2: (827.2, 39.6, 579.5), Locations: Mount Waialeale, Type: h
+Projector 1: (229.3, 56.7, 671.0), Projector 2: (128.0, 25.1, 720.7), Locations: Mount Waialeale, Type: s
+Projector 1: (395.4, 33.2, 641.8), Projector 2: (613.5, 37.4, 656.7), Locations: Mount Waialeale, Type: h
+Projector 1: (138.6, 20.0, 853.5), Projector 2: (128.0, 45.3, 680.7), Locations: Mount Waialeale, Type: s
+Projector 1: (277.4, 58.9, 586.5), Projector 2: (556.8, 66.7, 654.7), Locations: Grand Canyon, Type: h
+Projector 1: (798.7, 109.9, 158.3), Projector 2: (964.0, 94.0, 128.0), Locations: Grand Canyon, Type: s
+Projector 1: (168.1, 75.7, 484.4), Projector 2: (128.0, 69.3, 637.3), Locations: Grand Canyon, Type: h
+Projector 1: (419.9, 70.0, 668.5), Projector 2: (288.4, 66.7, 778.3), Locations: Grand Canyon, Type: s

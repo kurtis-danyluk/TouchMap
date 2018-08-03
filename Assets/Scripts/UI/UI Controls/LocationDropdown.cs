@@ -31,6 +31,7 @@ public class LocationDropdown : MonoBehaviour {
         locationFunctionPairs.Add("Monte Vista", () => map.ChangeTile(37.7f, -106.35f, 11, location: "Monte Vista") );
         locationFunctionPairs.Add("Everest", () => map.ChangeTile(28.1000f, 86.8658f, 11, 'a', 0, 0, 4, location: "Everest"));
         locationFunctionPairs.Add("Cliffs of Dover", () => map.ChangeTile(51.1345f, 1.3573f, 15, 'a', -3, -1, 4, location: "Cliffs of Dover"));
+        locationFunctionPairs.Add("Monument Valley", () => map.ChangeTile(37.048f, -110.122f, 13, 'a', -3, -2, 1, location: "Monument Valley"));
         locationFunctionPairs.Add("Grand Canyon", () => map.ChangeTile(36.2144f, -113.0565f, 13, 'a', 0, -1, location: "Grand Canyon"));
         locationFunctionPairs.Add("Blanca Peak", () => map.ChangeTile(37.57f, -105.48f, 12, 'a', -2, -2, location: "Blanca Peak"));
         locationFunctionPairs.Add("Sierro del Ojito", () => map.ChangeTile(37.29f, -105.80f, 14, location: "Sierro del Ojito"));

@@ -26,9 +26,14 @@ public class DirectionBarScript : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         Vector3 dirVector = touchEndPosPanel.transform.position - touchStartPosPanel.transform.position;
-        float dirLength = dirVector.magnitude;
+        Vector3 viewPortDirVector = Camera.main.ScreenToViewportPoint(touchEndPosPanel.transform.position) -
+                            Camera.main.ScreenToViewportPoint(touchStartPosPanel.transform.position);
+
+        float dirLength = new Vector3(viewPortDirVector.x * Screen.width, viewPortDirVector.y * Screen.height).magnitude;
+
         transform.position = touchStartPosPanel.transform.position + (dirVector.normalized * dirLength * 0.5f);
-        GetComponent<RectTransform>().sizeDelta = new Vector2(70, dirLength);
+        GetComponent<RectTransform>().sizeDelta = new Vector2(70, dirLength * (1/ GetComponentInParent<Canvas>().scaleFactor));
+        
 
         transform.LookAt(touchEndPosPanel.transform.position);
         if (dirVector.x < 0)
