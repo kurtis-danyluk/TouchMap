@@ -16,6 +16,7 @@ public class TransitionalCam : MonoBehaviour {
     public GameObject dirBar;
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
+    public GameObject directionHelper;
     public Button lockButton;
     public Sprite lockImage;
     public Sprite unlockImage;
@@ -164,6 +165,7 @@ public class TransitionalCam : MonoBehaviour {
                             float jp = TouchController.smoothstep(0, 0.9f, i);
                             //Convert to a different nonlinear for rotation - use smoothstep frame for rotation with new rotation handling.
                             //double jr = System.Math.Tanh(System.Convert.ToDouble((Mathf.Clamp(i, 0, 1) * 2)));
+                            float jr = jp * jp;
 
                             //Find the ground location
                             Physics.Raycast(startTouch, Vector3.down, out hit);
@@ -185,10 +187,10 @@ public class TransitionalCam : MonoBehaviour {
                                 Quaternion startAngleAdjusted = Quaternion.LookRotation(Vector3.down, startLookDir3);
 
                                 //Slerp from our new adjusted starting angle to the end angle
-                                Quaternion finalRot = Quaternion.Slerp(startAngleAdjusted, endView, jp);
+                                Quaternion finalRot = Quaternion.Slerp(startAngleAdjusted, endView, jr);
 
                                 //Apply that slerp with max speed of 10
-                                Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
+                                Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 15);
                             }
 
 
@@ -208,6 +210,8 @@ public class TransitionalCam : MonoBehaviour {
                             startSphere.SetActive(false);
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
+
+                            directionHelper.SetActive(false);
 
 
                             if (!isLocked)
@@ -251,6 +255,7 @@ public class TransitionalCam : MonoBehaviour {
                                 lockButton.gameObject.SetActive(true);
                                 endSphere.SetActive(false);
                                 viewPane.SetActive(true);
+                                directionHelper.SetActive(true);
                                 viewPane.GetComponent<CanvasRenderer>().SetAlpha(0);
                                 CameraLink.syncView(Camera.main, topCam);
                                 topCam.GetComponent<CameraLink>().enabled = false;

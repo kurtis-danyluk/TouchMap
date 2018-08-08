@@ -98,16 +98,18 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             //Convert to a nonlinear for position
                             float jp = TouchController.smoothstep(0.1f, 1.0f, i);
                             //Lerp from the starting location to the end location
-                            Camera.main.transform.position = Vector3.Lerp(startPos, startTouch, jp);
+
+                            Vector3 finalLocation = startTouch + ((startTouch - endTouch).normalized) * 30;// + endViewOffset;
+
+                            Camera.main.transform.position = Vector3.Lerp(startPos, finalLocation, jp);
 
                             //Determine where we should be looking by the end of the interaction
                             Quaternion endView = TouchController.LookAngle(startTouch, endTouch);
                             
 
                             //Slerp from our new adjusted starting angle to the end angle
-                            Quaternion finalRot = Quaternion.Slerp(startAngle, endView, jp);
-
-                            //Apply that slerp with max speed of 10
+                            Quaternion finalRot = Quaternion.Slerp(startAngle, endView, jp*jp);
+                            
                             Camera.main.transform.rotation = finalRot;//Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 10);
                         }
                     }
@@ -161,6 +163,7 @@ public class TransitionalFixedRotation : MonoBehaviour {
                             touchStartPosPanel.transform.position = new Vector3(t.position.x, t.position.y, 0);
                             touchStartPosPanel.SetActive(true);
                             touchEndPosPanel.transform.position = touchStartPosPanel.transform.position;
+                      
                             //startSphere.SetActive(true);
 
                             float offset = 420;
