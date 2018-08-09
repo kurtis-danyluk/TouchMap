@@ -190,41 +190,62 @@ public class TouchCamera : MonoBehaviour {
                 if (!(rotateMode || pitchMode))
                 {
                     //Handle Zooms
-                    bool hasGrown = (oldTouchPortDistance - newTouchPortDistance) > 0 ? true : false;
+                    //bool hasGrown = (oldTouchPortDistance - newTouchPortDistance) > 0 ? true : false;
+                    //float fingerRatio = hasGrown ? -( newTouchPortDistance / oldTouchPortDistance ) : ( oldTouchPortDistance/ newTouchPortDistance);
                     float fingerRatio = (oldTouchPortDistance / newTouchPortDistance);
-                    
-                    if (hasGrown)
-                        fingerRatio = (-1) * fingerRatio;
+
+                    //if (hasGrown)
+                    //fingerRatio = (-1) * fingerRatio;
                     //else
-                      //  fingerRatio *= 1;//3;
+                    //  fingerRatio *= 1;//3;
 
-                    if (Mathf.Abs(oldTouchPortDistance - newTouchPortDistance) > minZoomRatio || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > minZoomRatio / 5))
+                    if (Mathf.Abs(oldTouchPortDistance - newTouchPortDistance) > minZoomRatio || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > minZoomRatio / 2))
                     {
-                        zoomMode = true;
-
-                        if (Mathf.Abs(fingerRatio) > 0.1)
-                        {
-                            if (hitTrue)
+                        if(zoomMode)
+                            if (Mathf.Abs(fingerRatio) > 0.1)
                             {
-                                Vector3 path = (hit.point - cam.transform.position);
-                                if (path.magnitude < 80.0f)
-                                    path = path.normalized * 80.0f;
-                                transform.position += path * (1 / fingerRatio) * 0.033f;
+                                if (hitTrue)
+                                {
+                                    Vector3 path = (hit.point - cam.transform.position);
+                                   // if (path.magnitude < 80.0f && hasGrown)
+                                     //   path = path.normalized * 80.0f;
+                                    //transform.position += path * (fingerRatio) * 0.033f;
 
-                            }
-                            else
-                                transform.position += (cam.transform.forward * cam.farClipPlane) * (1 / fingerRatio) * 0.033f;
+                                    Debug.Log(fingerRatio + " " + path.magnitude + " " + transform.position + " ");
+
+                                   //if(!hasGrown)
+                                        transform.Translate(path.normalized * (path.magnitude * (fingerRatio) - path.magnitude) * -1f, Space.World);
+                                    //else
+                                      //  transform.Translate(path * (path.magnitude * (fingerRatio) - path.magnitude ) * (-0.033f), Space.World);
+                                    Debug.Log(transform.position);
+                                }
+                                else
+                                    transform.position += (cam.transform.forward * cam.farClipPlane) * (fingerRatio) * 0.033f;
                             
-                            oldTouchPositions[0] = newTouchPositions[0];
-                            oldTouchPositions[1] = newTouchPositions[1];
-                            oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
-                            oldTouchDistance = oldTouchVector.magnitude;
+                                oldTouchPositions[0] = newTouchPositions[0];
+                                oldTouchPositions[1] = newTouchPositions[1];
+                                oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                                oldTouchDistance = oldTouchVector.magnitude;
 
-                            oldTouchPortPositions[0] = newTouchPortPositions[0];
-                            oldTouchPortPositions[1] = newTouchPortPositions[1];
-                            oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
-                            oldTouchPortDistance = oldTouchPortVector.magnitude;
-                        }
+                                oldTouchPortPositions[0] = newTouchPortPositions[0];
+                                oldTouchPortPositions[1] = newTouchPortPositions[1];
+                                oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
+                                oldTouchPortDistance = oldTouchPortVector.magnitude;
+                            }/*
+                            else
+                            {
+                                oldTouchPositions[0] = newTouchPositions[0];
+                                oldTouchPositions[1] = newTouchPositions[1];
+                                oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                                oldTouchDistance = oldTouchVector.magnitude;
+
+                                oldTouchPortPositions[0] = newTouchPortPositions[0];
+                                oldTouchPortPositions[1] = newTouchPortPositions[1];
+                                oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
+                                oldTouchPortDistance = oldTouchPortVector.magnitude;
+                            }*/
+
+                        zoomMode = true;
                     }
                 }
 
@@ -267,7 +288,7 @@ public class TouchCamera : MonoBehaviour {
                     float twoDif = oldTouchPortPositions[1].Value.y - newTouchPortPositions[1].y;
                     float avDif = (oneDif + twoDif) / 2;
                     
-                    if (((oneDif > 0.01f &&  twoDif > 0.01f) || (oneDif < -0.01f && twoDif < -0.01f) && pitchMode) || ((oneDif > 0.05f && twoDif > 0.05f) || (oneDif < -0.05f && twoDif < -0.05f)))
+                    if (( pitchMode) || ((oneDif > 0.05f && twoDif > 0.05f) || (oneDif < -0.05f && twoDif < -0.05f)))
                     {
                         Vector3 pitchPoint = hit.point;
                         
@@ -276,12 +297,16 @@ public class TouchCamera : MonoBehaviour {
 
 
                         float newPitch;
-                        //float workingAngle = transform.eulerAngles.x;
-                        //workingAngle = workingAngle > 270 ? workingAngle - 360 : workingAngle;
+                        float workingAngle = transform.eulerAngles.x;
+                        workingAngle = workingAngle > 270 ? workingAngle - 360 : workingAngle;
 
 
                         //  newPitch = Mathf.Clamp(workingAngle + (avDif * 180), -89, 90);
                         newPitch = avDif * 180;
+
+                        newPitch = newPitch + workingAngle > 90 ? 90 - workingAngle : newPitch;
+                        newPitch = newPitch + workingAngle < 0 ? 0 - workingAngle : newPitch;
+
                         if (hitTrue)
                         {
                             transform.RotateAround(pitchPoint, cam.transform.right, newPitch);
