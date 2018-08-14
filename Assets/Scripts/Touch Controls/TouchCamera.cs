@@ -9,15 +9,15 @@ public class TouchCamera : MonoBehaviour {
     public Camera cam;
     private GameObject temp;
 
-    private const float dragSpeed = 1.2f;//526;
+    private const float dragSpeed = 2.0f;//526;
     private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
     private static readonly float[] boundsZoom = new float[]{ 2, 512 };
     private static readonly float[] boundsX = new float[] { 0, 1024 };
     private static readonly float[] boundsY = new float[] { 0, 1024 };
 
-    private static readonly float minEntranceRotation = 15;
-    private static readonly float minZoomRatio = 0.08f;
+    private static readonly float minEntranceRotation = 12;
+    private static readonly float minZoomRatio = 0.4f;
 
     private bool zoomMode = false;
     private bool rotateMode = false;
@@ -111,30 +111,44 @@ public class TouchCamera : MonoBehaviour {
                 else
                 {
                     Vector2 newTouchPosition = Input.GetTouch(0).position;
-                    Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
 
-                    //float avgCamHeight;
+                    bool inScene = false;
+                    RaycastHit hit;
+                    inScene = Physics.Raycast(cam.ScreenPointToRay((Vector3)oldTouchPositions[0]),out hit ,cam.farClipPlane);
+                    Vector3 oldScenePoint = hit.point;
 
-                    float frustumHeight = 2.0f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
-                    float frustumWidth = frustumHeight * Camera.main.aspect;
+                    inScene &= Physics.Raycast(cam.ScreenPointToRay((Vector3)newTouchPosition), out hit, cam.farClipPlane);
+                    Vector3 newScenePoint = hit.point;
 
-                    Vector3 movement = new Vector3(offset.x * frustumHeight*dragSpeed, offset.y *frustumWidth *dragSpeed, 0);
+                    if (inScene)
+                    {
+                        Vector3 sceneDif = oldScenePoint - newScenePoint;
+                        transform.position += new Vector3(sceneDif.x, 0, sceneDif.z);
+                    }
+                    else
+                    {
+                        Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
 
-                    temp.transform.position = transform.position;
-                    temp.transform.eulerAngles = new Vector3(90, transform.eulerAngles.y, transform.eulerAngles.z);
+                        float frustumHeight = 2.0f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                        float frustumWidth = frustumHeight * Camera.main.aspect;
 
-                    temp.transform.Translate(movement, Space.Self);
+                        Vector3 movement = new Vector3(offset.x * frustumHeight * dragSpeed, offset.y * frustumWidth * dragSpeed, 0);
 
-                    transform.position = temp.transform.position;
-                    //transform.position += movement;//transform.TransformDirection(movement);
+                        temp.transform.position = transform.position;
+                        temp.transform.eulerAngles = new Vector3(90, transform.eulerAngles.y, transform.eulerAngles.z);
+
+                        temp.transform.Translate(movement, Space.Self);
+
+                        transform.position = temp.transform.position;
+                        //transform.position += movement;//transform.TransformDirection(movement);
+
+                    }
 
                     pos = transform.position;
                     pos.x = Mathf.Clamp(pos.x, boundsX[0], boundsX[1]);
                     pos.y = Mathf.Clamp(pos.y, boundsZoom[0], boundsZoom[1]);
                     pos.z = Mathf.Clamp(pos.z, boundsY[0], boundsY[1]);
                     transform.position = pos;
-
-                    //transform.position += temp.transform.TransformDirection(dragSpeed * (Vector3)((oldTouchPositions[0] - newTouchPosition) * m_OrthographicCamera.orthographicSize / m_OrthographicCamera.pixelHeight * 2f));
 
                     oldTouchPositions[0] = newTouchPosition;
                 }
@@ -190,60 +204,31 @@ public class TouchCamera : MonoBehaviour {
                 if (!(rotateMode || pitchMode))
                 {
                     //Handle Zooms
-                    //bool hasGrown = (oldTouchPortDistance - newTouchPortDistance) > 0 ? true : false;
-                    //float fingerRatio = hasGrown ? -( newTouchPortDistance / oldTouchPortDistance ) : ( oldTouchPortDistance/ newTouchPortDistance);
+
                     float fingerRatio = (oldTouchPortDistance / newTouchPortDistance);
-
-                    //if (hasGrown)
-                    //fingerRatio = (-1) * fingerRatio;
-                    //else
-                    //  fingerRatio *= 1;//3;
-
-                    if (Mathf.Abs(oldTouchPortDistance - newTouchPortDistance) > minZoomRatio || (zoomMode && Mathf.Abs(oldTouchDistance - newTouchDistance) > minZoomRatio / 2))
+                    if (fingerRatio > 1 + minZoomRatio || fingerRatio < 1 - minZoomRatio || zoomMode)
                     {
-                        if(zoomMode)
-                            if (Mathf.Abs(fingerRatio) > 0.1)
+                        if (Mathf.Abs(fingerRatio) > 0.1)
+                        {
+                            if (hitTrue)
                             {
-                                if (hitTrue)
-                                {
-                                    Vector3 path = (hit.point - cam.transform.position);
-                                   // if (path.magnitude < 80.0f && hasGrown)
-                                     //   path = path.normalized * 80.0f;
-                                    //transform.position += path * (fingerRatio) * 0.033f;
-
-                                    Debug.Log(fingerRatio + " " + path.magnitude + " " + transform.position + " ");
-
-                                   //if(!hasGrown)
-                                        transform.Translate(path.normalized * (path.magnitude * (fingerRatio) - path.magnitude) * -1f, Space.World);
-                                    //else
-                                      //  transform.Translate(path * (path.magnitude * (fingerRatio) - path.magnitude ) * (-0.033f), Space.World);
-                                    Debug.Log(transform.position);
-                                }
-                                else
-                                    transform.position += (cam.transform.forward * cam.farClipPlane) * (fingerRatio) * 0.033f;
-                            
-                                oldTouchPositions[0] = newTouchPositions[0];
-                                oldTouchPositions[1] = newTouchPositions[1];
-                                oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
-                                oldTouchDistance = oldTouchVector.magnitude;
-
-                                oldTouchPortPositions[0] = newTouchPortPositions[0];
-                                oldTouchPortPositions[1] = newTouchPortPositions[1];
-                                oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
-                                oldTouchPortDistance = oldTouchPortVector.magnitude;
-                            }/*
+                                Vector3 path = (hit.point - cam.transform.position);
+                                transform.Translate(path.normalized * (path.magnitude * (fingerRatio) - path.magnitude) * -1f, Space.World);
+                            }
                             else
-                            {
-                                oldTouchPositions[0] = newTouchPositions[0];
-                                oldTouchPositions[1] = newTouchPositions[1];
-                                oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
-                                oldTouchDistance = oldTouchVector.magnitude;
+                                transform.position += (cam.transform.forward * cam.farClipPlane) * (fingerRatio) * 0.033f;
+                            
+                            oldTouchPositions[0] = newTouchPositions[0];
+                            oldTouchPositions[1] = newTouchPositions[1];
+                            oldTouchVector = (Vector2)(oldTouchPositions[0] - oldTouchPositions[1]);
+                            oldTouchDistance = oldTouchVector.magnitude;
 
-                                oldTouchPortPositions[0] = newTouchPortPositions[0];
-                                oldTouchPortPositions[1] = newTouchPortPositions[1];
-                                oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
-                                oldTouchPortDistance = oldTouchPortVector.magnitude;
-                            }*/
+                            oldTouchPortPositions[0] = newTouchPortPositions[0];
+                            oldTouchPortPositions[1] = newTouchPortPositions[1];
+                            oldTouchPortVector = (Vector2)(oldTouchPortPositions[0] - oldTouchPortPositions[1]);
+                            oldTouchPortDistance = oldTouchPortVector.magnitude;
+                        }
+
 
                         zoomMode = true;
                     }
