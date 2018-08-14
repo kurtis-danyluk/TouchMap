@@ -16,7 +16,7 @@ public class TransitionalCam : MonoBehaviour {
     public GameObject dirBar;
     public GameObject touchStartPosPanel;
     public GameObject touchEndPosPanel;
-    public GameObject directionHelper;
+  //  public GameObject directionHelper;
     public Button lockButton;
     public Sprite lockImage;
     public Sprite unlockImage;
@@ -211,7 +211,7 @@ public class TransitionalCam : MonoBehaviour {
                             touchStartPosPanel.SetActive(false);
                             touchEndPosPanel.SetActive(false);
 
-                            directionHelper.SetActive(false);
+                        //    directionHelper.SetActive(false);
 
 
                             if (!isLocked)
@@ -255,7 +255,7 @@ public class TransitionalCam : MonoBehaviour {
                                 lockButton.gameObject.SetActive(true);
                                 endSphere.SetActive(false);
                                 viewPane.SetActive(true);
-                                directionHelper.SetActive(true);
+                            //    directionHelper.SetActive(true);
                                 viewPane.GetComponent<CanvasRenderer>().SetAlpha(0);
                                 CameraLink.syncView(Camera.main, topCam);
                                 topCam.GetComponent<CameraLink>().enabled = false;

@@ -9,7 +9,7 @@ public class TouchCamera : MonoBehaviour {
     public Camera cam;
     private GameObject temp;
 
-    private const float dragSpeed = 2.0f;//526;
+    private const float dragSpeed = 1.0f;//526;
     private const float zoomSpeed = 2f;
     private const float pitchSpeed = 0.1f;
     private static readonly float[] boundsZoom = new float[]{ 2, 512 };
@@ -67,6 +67,7 @@ public class TouchCamera : MonoBehaviour {
     Vector2 oldTouchPortVector;
 	float oldTouchDistance;
     float oldTouchPortDistance;
+    Vector3 oldScenePoint;
 
     void Start()
     {
@@ -101,38 +102,49 @@ public class TouchCamera : MonoBehaviour {
 		else if (Input.touchCount == 1) {
             if (!SnapBackCam.isActive && !ReverseSnapCam.isActive && !TouchController.isActive && !LookFromAt.isActive && !LookAtFrom.isActive && !TransitionalCam.isActive)
             {
+
+                RaycastHit hit;
                 if (oldTouchPositions[0] == null || oldTouchPositions[1] != null)
                 {
                     oldTouchPositions[0] = Input.GetTouch(0).position;
                     oldTouchPortPositions[0] = cam.ScreenToViewportPoint((Vector3)oldTouchPositions[0]);
+                    Physics.Raycast(cam.ScreenPointToRay((Vector3)oldTouchPositions[0]), out hit, cam.farClipPlane);
+                    oldScenePoint = hit.point;
+
                     oldTouchPositions[1] = null;
                     oldTouchPortPositions[1] = null;
+                    
                 }
                 else
                 {
                     Vector2 newTouchPosition = Input.GetTouch(0).position;
 
+                    /*
                     bool inScene = false;
-                    RaycastHit hit;
-                    inScene = Physics.Raycast(cam.ScreenPointToRay((Vector3)oldTouchPositions[0]),out hit ,cam.farClipPlane);
-                    Vector3 oldScenePoint = hit.point;
 
                     inScene &= Physics.Raycast(cam.ScreenPointToRay((Vector3)newTouchPosition), out hit, cam.farClipPlane);
                     Vector3 newScenePoint = hit.point;
 
-                    if (inScene)
-                    {
-                        Vector3 sceneDif = oldScenePoint - newScenePoint;
-                        transform.position += new Vector3(sceneDif.x, 0, sceneDif.z);
-                    }
-                    else
+
+                    inScene = Physics.Raycast(cam.ScreenPointToRay((Vector3)oldTouchPositions[0]),out hit ,cam.farClipPlane);
+                    Vector3 oldScenePoint = hit.point;
+
+                   */
+
+                 //   if (inScene)
+                 //   {
+                 //       Vector3 sceneDif = oldScenePoint - newScenePoint;
+                 //       transform.position += new Vector3(sceneDif.x, 0, sceneDif.z);
+                 //   }
+                 //   else
                     {
                         Vector3 offset = cam.ScreenToViewportPoint((Vector3)((oldTouchPositions[0] - newTouchPosition)));
 
-                        float frustumHeight = 2.0f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                        float frustumHeight = 2.0f * (transform.position - oldScenePoint).magnitude * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                        //float frustumHeight = 2.0f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
                         float frustumWidth = frustumHeight * Camera.main.aspect;
-
-                        Vector3 movement = new Vector3(offset.x * frustumHeight * dragSpeed, offset.y * frustumWidth * dragSpeed, 0);
+                        
+                        Vector3 movement = new Vector3(offset.x  * frustumWidth * dragSpeed, offset.y * frustumHeight * dragSpeed, 0);
 
                         temp.transform.position = transform.position;
                         temp.transform.eulerAngles = new Vector3(90, transform.eulerAngles.y, transform.eulerAngles.z);
@@ -151,6 +163,9 @@ public class TouchCamera : MonoBehaviour {
                     transform.position = pos;
 
                     oldTouchPositions[0] = newTouchPosition;
+
+                    Physics.Raycast(cam.ScreenPointToRay((Vector3)oldTouchPositions[0]), out hit, cam.farClipPlane);
+                    oldScenePoint = hit.point;
                 }
             }
 		}
