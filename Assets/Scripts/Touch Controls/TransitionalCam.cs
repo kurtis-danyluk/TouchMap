@@ -39,6 +39,8 @@ public class TransitionalCam : MonoBehaviour {
     Vector3 startTouch;
     Vector3 endTouch;
 
+    Vector3 lastFinalLocation;
+
     private void OnEnable()
     {
         ResetCam.resetCam(Camera.main);
@@ -125,29 +127,20 @@ public class TransitionalCam : MonoBehaviour {
                             //Vector3 worldP = setCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 2000));
                             Vector3 dir = (worldP - topCam.transform.position).normalized;
                             RaycastHit hit;
-                            Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
+
+                            bool endHit = Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
 
 
                             if (move_time == 0)
                                 move_time = Time.time;
                             stationary_time = 0;
-                            endTouch = hit.point;
+                            endTouch = endHit? hit.point : lastFinalLocation;
+                            lastFinalLocation = endTouch;
                             endSphere.transform.position = hit.point;
                             startSphere.SetActive(false);
-                            //endSphere.SetActive(true);
-                            if (Time.time - move_time >= 0.2)
-                            {
 
-                                viewPane.SetActive(true);
-                                //viewPane.GetComponent<ViewPaneTexture>().fadeIn((1f / 5f));
-                            }
                             touchEndPosPanel.transform.position = t.position;
                             touchEndPosPanel.SetActive(true);
-                            if (coroutine != null && Time.time - move_time > 0.1)
-                            {
-                                //cocounter = 0;
-                                //StopAllCoroutines();// (coroutine);
-                            }
 
                             Vector3 startViewOffset = new Vector3();
 
@@ -190,7 +183,7 @@ public class TransitionalCam : MonoBehaviour {
                                 Quaternion finalRot = Quaternion.Slerp(startAngleAdjusted, endView, jr);
 
                                 //Apply that slerp with max speed of 10
-                                Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 15);
+                                Camera.main.transform.rotation = Quaternion.RotateTowards(Camera.main.transform.rotation, finalRot, 25);
                             }
 
 
