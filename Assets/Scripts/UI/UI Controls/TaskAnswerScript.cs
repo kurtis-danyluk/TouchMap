@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TaskAnswerScript : MonoBehaviour {
@@ -122,7 +123,7 @@ public class TaskAnswerScript : MonoBehaviour {
     private IEnumerator startNewTask(mapTile map)
     {
         yield return new WaitUntil(() => !map.isLoadingTile);
-
+        yield return new WaitUntil(() => Input.touchCount > 0);
         time = Time.time;
         answerLock = false;
     }
