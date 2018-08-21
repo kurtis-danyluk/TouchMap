@@ -119,16 +119,23 @@ public class TransitionalCam : MonoBehaviour {
                             Vector2 overlayCoords = viewPane.GetComponent<RectTransform>().position;
                             Vector3 touchInOverlay = t.position - overlayCoords;
 
+
                             Vector2 olWH = new Vector2((viewPane.GetComponent<RectTransform>().rect.width / 2), (viewPane.GetComponent<RectTransform>().rect.height / 2));
                             Vector2 touchPortCoords = new Vector3(((touchInOverlay.x / olWH.x) + 1.4f) / 2.8f, ((touchInOverlay.y / olWH.y) + 1.1f) / 2.2f);
-                            //Debug.Log(touchPortCoords);
-                            Vector3 worldP = topCam.ViewportToWorldPoint(new Vector3(touchPortCoords.x, touchPortCoords.y, topCam.transform.position.y));
+                            
 
-                            //Vector3 worldP = setCam.ScreenToWorldPoint(new Vector3(t.position.x, t.position.y, 2000));
+                            Vector3 worldP = topCam.ViewportToWorldPoint(new Vector3(touchPortCoords.x, touchPortCoords.y, topCam.transform.position.y));
                             Vector3 dir = (worldP - topCam.transform.position).normalized;
                             RaycastHit hit;
-
                             bool endHit = Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
+
+                            while (!endHit)
+                            {
+                                worldP = (worldP + startSphere.transform.position) * 0.5f;
+                                dir = (worldP - topCam.transform.position).normalized;
+                                endHit = Physics.Raycast(topCam.transform.position + (dir * topCam.nearClipPlane), dir, out hit, topCam.farClipPlane);
+                            }
+
 
 
                             if (move_time == 0)
